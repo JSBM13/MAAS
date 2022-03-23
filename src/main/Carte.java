@@ -26,7 +26,7 @@ public class Carte {
 	private typesRoute[] typeRoutesHorizontales;
 	private typesRoute[] typeRoutesVerticales;
 	
-	private Circuit circuits;
+	private Circuit[] circuits;
 	
 	/**
 	 * Constructeur de la carte.
@@ -58,12 +58,21 @@ public class Carte {
 		this.typeRoutesHorizontales = typeRoutesHorizontales;
 	}
 	
+	/**
+	 * Détermine le trajet à prendre entre deux points.
+	 * @param depart L'intersection où l'on débute
+	 * @param arrivee L'intersection où l'on souhaite arriver
+	 * @param vehicule Le type de véhicule à utiliser
+	 * @param direction La direction initiale vers laquelle on navigue
+	 * @return Un objet Trajet avec la liste des Intersections qu'on doit traverser pour se rendre au point.
+	 * @throws Exception
+	 */
 	public Trajet trouverTrajet(Intersection depart, Intersection arrivee, ModeTransport vehicule, directions direction ) throws Exception {
 		
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
 		
-		Trajet t = new Trajet(vehicule.getType(), depart);
+		Trajet t = new Trajet(this, vehicule.getType(), depart);
 		
 		// S'il n'y a aucun déplacement à faire, on va simplement renvoyer un trajet avec un seul point.
 		if (deltaX == 0 && deltaY == 0) {
@@ -90,13 +99,11 @@ public class Carte {
 			}
 		}
 		
-		int loop = 0;
-		
 		System.out.println(directionActuelle);
 		System.out.println(positionActuelle);
 		
 		// Tant qu'on est pas rendu au point final, on roule cette boucle.
-		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY()) && ++loop < 100) {
+		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY())) {
 			
 			// On essaie, en ordre, aller tout droit, puis à droite, puis à gauche.
 			// Chaque fois, on vérifie si ce déplacement nous rapprocherais de notre but. Si oui, on utilise cette direction. Autrement, on essaie la prochaine.
@@ -113,13 +120,17 @@ public class Carte {
 			}
 		}
 		
-		if (loop == 100) throw new Exception("boucle infinie!");
-
-		
-		
+		t.setDirection(directionActuelle);
 		return t;
 	}
 	
+	/**
+	 * Détermine la direction dans laquelle on a voyagé. Ne s'applique que si les deux points sont sur une même ligne,
+	 * ne devrait pas être utilisé pour déterminer s'il y a eu plus qu'un déplacement en ligne droite.
+	 * @param depart Intersection initale
+	 * @param arrivee Intersection finale
+	 * @return La direction dans laquelle on a voyagé.
+	 */
 	public directions findDirection(Intersection depart, Intersection arrivee) {
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
@@ -135,24 +146,40 @@ public class Carte {
 		return directions.undefined;
 	}
 	
-	public boolean routeExiste(int x, int y) {
+	/**
+	 * Détermine si l'Intersection aux coordonnées fournies existe sur notre Carte.
+	 * @param x La coordonnée x de la route
+	 * @param y La coordonnée y de la route
+	 * @return Vrai si l'intersection existe dans notre carte.
+	 */
+	public boolean intersectionExiste(int x, int y) {
 		return (x < nbRoutesVerticales && y < nbRoutesHorizontales && x >= 0 && y >= 0);
 	}
 	
+	/**
+	 * Détermine si l'Intersection fournie correspond à une véritable intersection dans notre Carte.
+	 * @param intersection L'Intersection à vérifier.
+	 * @return Vrai si l'intersection existe dans notre carte.
+	 */
 	public boolean intersectionExiste(Intersection intersection) {
-		return routeExiste(intersection.getX(), intersection.getY());
+		return intersectionExiste(intersection.getX(), intersection.getY());
 	}
 	
-	public directions rotateDirection(directions initial, int rotation) throws Exception {
-		switch (Math.abs(initial.ordinal() + rotation) % 4) {
-		case 0: return directions.nord;
-		case 1: return directions.est;
-		case 2: return directions.sud;
-		case 3: return directions.ouest;
-		default: throw new Exception("rotateDirection a donné une valeur autre que 0 à 3, JS, t'as mal codé ton affaire!");
-		}
+	/**
+	 * Fournie une direction qui est le résultat d'une rotation vers la droite/sens horaire d'un certain nombre de pas.
+	 * @param initial La direction originale
+	 * @param rotation Le nombre de rotation à effectuer
+	 * @return La nouvelle direction
+	 */
+	public directions rotateDirection(directions initial, int rotation) {
+		return (directionFromInt(Math.abs(initial.ordinal() + rotation) % 4));
+		
 	}
 	
+	/**
+	 * Fournie une direction selon un nombre entier, où le Nord équivaut à 0, est à 1, sud à 2 et ouest à 3.
+	 * Toutes les autres valeurs retourneront la direction "undefined".
+	 */
 	public directions directionFromInt(int i) {
 		switch (i) {
 		case 0: return directions.nord;
@@ -221,5 +248,4 @@ public class Carte {
 			this.orientation = o;
 		}
 	}
-	
 }

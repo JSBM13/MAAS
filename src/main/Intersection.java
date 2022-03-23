@@ -51,6 +51,7 @@ public class Intersection {
 		return this.clone().move(direction,  distance);
 	}
 	
+
 	public int delta(Intersection intersection) throws Exception {
 		return Math.abs(intersection.getX() - x) + Math.abs(intersection.getY() - y);
 	}
@@ -69,6 +70,10 @@ public class Intersection {
 
 	public typesIntersection getType() {
 		return type;
+	}
+	
+	public void setType(typesIntersection type) {
+		this.type = type;
 	}
 	
 	public String toString( ) {
