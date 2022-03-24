@@ -9,8 +9,7 @@ import main.Intersection;
 public class Trajet {
 	
 	private Carte carte;
-	private Intersection depart;
-	private Intersection destination;
+
 	 
 	private ArrayList<Intersection> intersections;
 	private int nbIntersections;
@@ -18,16 +17,13 @@ public class Trajet {
 	private int temps;
 	private int distance;
 	private typeTransport vehicule;
-	private directions direction;
-	 
-
+	private directions direction = directions.undefined;
+	
 
 	public Trajet(Carte carte, Intersection ... intersections) {
 		super();
 		this.carte = carte;
 		this.nbIntersections = intersections.length;
-		this.depart = intersections[0];
-		this.destination = intersections[nbIntersections];
 		this.intersections = new ArrayList<>(Arrays.asList(intersections));
 		this.vehicule = typeTransport.undefined;
 	}
@@ -36,8 +32,6 @@ public class Trajet {
 		super();
 		this.carte = carte;
 		this.nbIntersections = intersections.length;
-		this.depart = intersections[0];
-		this.destination = intersections[nbIntersections - 1];
 		this.intersections = new ArrayList<>(Arrays.asList(intersections));
 		this.vehicule = vehicule;
 	}
@@ -50,6 +44,23 @@ public class Trajet {
 		nbIntersections = intersections.size();
 	}
 	
+	/**
+	 * Prend les points d'un second objet Trajet et les ajoute à la fin de la liste de cet objet.
+	 * Cette fonction nécessite que ce trajet fini au même endroit que le second Trajet commence.
+	 * @param t
+	 * @throws Exception Si le trajet à combiner ne commence pas à la même intersection que ce trajet fini.
+	 */
+	public void combine(Trajet t) throws Exception {
+		if (getDestination() == t.getDepart()) {
+			intersections.addAll(t.getIntersections().subList(1, t.nbIntersections - 1));
+			nbIntersections = intersections.size();
+			makeReady();
+		} else {
+			throw new Exception("Le Trajet à combiner ne commence pas à la même intersection que ce Trajet fini.");
+		}
+	}
+	
+
 	public String toString() {
 		String s = "Trajet: [ ";
 		for (Intersection inters : intersections) {
@@ -63,15 +74,19 @@ public class Trajet {
 	}
 
 	public Intersection getDepart() {
-		return depart;
+		return intersections.get(0);
 	}
 
 	public Intersection getDestination() {
-		return destination;
+		return intersections.get(nbIntersections - 1) ;
 	}
 
 	public ArrayList<Intersection> getIntersections() {
 		return intersections;
+	}
+	
+	public void setIntersections(ArrayList<Intersection> intersections) {
+		this.intersections = intersections;
 	}
 
 	public int getTemps() {
@@ -100,6 +115,14 @@ public class Trajet {
 	
 	public void setDirection(directions direction) {
 		this.direction = direction;
+	}
+	
+	public void findDirection() {
+		this.direction = carte.findDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+	}
+	
+	public void makeReady() {
+		findDirection();
 	}
 	 
 	 

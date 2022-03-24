@@ -1,6 +1,7 @@
 package main;
 
 import main.typesIntersection;
+import main.ModeTransport;
 
 public class Carte {
 
@@ -59,6 +60,79 @@ public class Carte {
 	}
 	
 	/**
+	 * Détermine, pour chaque circuit de la carte, le trajet optimal pour embarquer aussi près que possible d'un
+	 * point de départ et débarquer aussi près que possible d'un point d'arrivée.
+	 * @param depart L'intersection de départ.
+	 * @param arrivee L'intersection d'arrivée.
+	 * @param vehicule Le type de véhicule utilisé.
+	 * @return Un array de Trajets, un pour chaque circuits de la carte.
+	 */
+	public Trajet[] trouverCircuits(Intersection depart, Intersection arrivee, ModeTransport vehicule) {
+		
+		Trajet[] choix = new Trajet[circuits.length];
+		
+		for (int i = 0; i < circuits.length; i++) {
+			System.out.println(i);
+			Trajet t = new Trajet(this, vehicule.getType() );
+			
+			Circuit circuit = circuits[i];
+			int distanceDepart = -1;
+			int pointDepart = -1;
+			int distanceArrivee = -1;
+			int pointArrivee = -1;
+			
+			for (int j = 0; j < circuit.arrets.length; j++ ) {
+				System.out.println(i);
+				Intersection arret = circuit.arrets[j];
+				int arretDistanceDepart = depart.delta(arret);
+				int arretDistanceArrivee = arrivee.delta(arret);
+				if (arretDistanceDepart < distanceDepart || distanceDepart == -1) {
+					distanceDepart = arretDistanceDepart;
+					pointDepart = j;
+				}
+				if (arretDistanceArrivee < distanceArrivee || distanceArrivee == -1) {
+					distanceArrivee = arretDistanceArrivee;
+					pointArrivee = j;
+				}
+			}
+			t.setIntersections(produireTrajetCircuit(i, pointDepart, pointArrivee).getIntersections());
+			t.makeReady();
+			choix[i] = t;
+		}
+		
+		
+		return choix;
+	}
+	
+	public Trajet produireTrajetCircuit(int indexCircuit, int arretDepart, int arretArrivee) {
+		
+		Circuit circuit = circuits[indexCircuit];
+		Trajet t = new Trajet(this, circuit.vehicule.getType());
+		
+		try {
+			
+			int length = 0;
+			if (arretArrivee < arretDepart) {
+				length = (circuit.getNbArrets() - arretDepart + arretArrivee);
+			} else {
+				length = arretArrivee - arretDepart;
+			}
+			
+			for (int i = arretDepart; i <= length + arretDepart; i++) {
+				t.combine(trouverTrajet(circuit.getArret(i), circuit.getArret(i + 1), circuit.vehicule, t.getDirection()));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}
+			
+		return t;
+	}
+	
+	
+	
+	/**
 	 * Détermine le trajet à prendre entre deux points.
 	 * @param depart L'intersection où l'on débute
 	 * @param arrivee L'intersection où l'on souhaite arriver
@@ -99,9 +173,6 @@ public class Carte {
 			}
 		}
 		
-		System.out.println(directionActuelle);
-		System.out.println(positionActuelle);
-		
 		// Tant qu'on est pas rendu au point final, on roule cette boucle.
 		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY())) {
 			
@@ -119,7 +190,7 @@ public class Carte {
 				}
 			}
 		}
-		
+		t.makeReady();
 		t.setDirection(directionActuelle);
 		return t;
 	}
@@ -165,6 +236,14 @@ public class Carte {
 		return intersectionExiste(intersection.getX(), intersection.getY());
 	}
 	
+	public Circuit[] getCircuits() {
+		return circuits;
+	}
+
+	public void setCircuits(Circuit[] circuits) {
+		this.circuits = circuits;
+	}
+
 	/**
 	 * Fournie une direction qui est le résultat d'une rotation vers la droite/sens horaire d'un certain nombre de pas.
 	 * @param initial La direction originale
@@ -238,6 +317,10 @@ public class Carte {
 		} else {
 			return typesIntersection.PrincSec;
 		}
+	}
+	
+	public typesIntersection getTypeIntersection(Intersection intersection) {
+		return getTypeIntersection(intersection.getX(), intersection.getY());
 	}
 	
 	@SuppressWarnings("serial")

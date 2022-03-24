@@ -7,14 +7,14 @@ enum typesIntersection {
 }
 
 public class Intersection {
+	private typesIntersection type;
 	private int x;
 	private int y;
-	private typesIntersection type;
 	
 	public Intersection(int x, int y, typesIntersection type) {
+		this.type = type;
 		this.x = x;
 		this.y = y;
-		this.type = type;
 	}
 	
 	public Intersection(int x, int y) {
@@ -42,7 +42,6 @@ public class Intersection {
 	
 	/**
 	 * Retourne une nouvelle intersection ayant bougé un certain nombre de pas dans la direction indiquée depuis l'intersection actuelle.
-	 * À noter que le type d'Intersection sera toujours réinitialisé à undefined.
 	 * @param direction La direction dans laquelle on déplace l'intersection
 	 * @param distance Le nombre de pas
 	 * @return Une nouvelle intersection, ayant sa position modifiée.
@@ -52,7 +51,7 @@ public class Intersection {
 	}
 	
 
-	public int delta(Intersection intersection) throws Exception {
+	public int delta(Intersection intersection) {
 		return Math.abs(intersection.getX() - x) + Math.abs(intersection.getY() - y);
 	}
 	
@@ -78,5 +77,12 @@ public class Intersection {
 	
 	public String toString( ) {
 		return "(" + x + "," + y +")";
+	}
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof Intersection) {
+			Intersection intersection = (Intersection) obj;
+			if (intersection.x == x && intersection.y == y) return true;
+		} return false;
 	}
 }
