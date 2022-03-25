@@ -83,6 +83,7 @@ public class Intersection {
 		if (obj instanceof Intersection) {
 			Intersection intersection = (Intersection) obj;
 			if (intersection.x == x && intersection.y == y) return true;
-		} return false;
+		}
+		return false;
 	}
 }

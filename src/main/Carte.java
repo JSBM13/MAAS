@@ -72,7 +72,6 @@ public class Carte {
 		Trajet[] choix = new Trajet[circuits.length];
 		
 		for (int i = 0; i < circuits.length; i++) {
-			System.out.println(i);
 			Trajet t = new Trajet(this, vehicule.getType() );
 			
 			Circuit circuit = circuits[i];
@@ -82,7 +81,6 @@ public class Carte {
 			int pointArrivee = -1;
 			
 			for (int j = 0; j < circuit.arrets.length; j++ ) {
-				System.out.println(i);
 				Intersection arret = circuit.arrets[j];
 				int arretDistanceDepart = depart.delta(arret);
 				int arretDistanceArrivee = arrivee.delta(arret);
@@ -95,6 +93,7 @@ public class Carte {
 					pointArrivee = j;
 				}
 			}
+			//System.out.println("Pour circuit " + i + ": " + pointDepart + ", " + pointArrivee);
 			t.setIntersections(produireTrajetCircuit(i, pointDepart, pointArrivee).getIntersections());
 			t.makeReady();
 			choix[i] = t;
@@ -117,9 +116,16 @@ public class Carte {
 			} else {
 				length = arretArrivee - arretDepart;
 			}
-			
 			for (int i = arretDepart; i <= length + arretDepart; i++) {
-				t.combine(trouverTrajet(circuit.getArret(i), circuit.getArret(i + 1), circuit.vehicule, t.getDirection()));
+				Intersection point1 = circuit.getArret(i);
+				Intersection point2 = circuit.getArret(i + 1);
+				if (point1.delta(point2) == 1) {
+					t.addIntersection(point2);
+				} else {
+					Trajet segment = trouverTrajet(point1, point2, circuit.vehicule, t.getDirection());
+					t.combine(segment);
+				}
+				
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -142,6 +148,9 @@ public class Carte {
 	 * @throws Exception
 	 */
 	public Trajet trouverTrajet(Intersection depart, Intersection arrivee, ModeTransport vehicule, directions direction ) throws Exception {
+		
+		if (!intersectionExiste(depart)) throw new Exception("L'intersection de départ n'existe pas.");
+		if (!intersectionExiste(arrivee)) throw new Exception("L'intersection d'arrivée n'existe pas.");
 		
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
@@ -173,13 +182,15 @@ public class Carte {
 			}
 		}
 		
+		int loop = 0;
+		
 		// Tant qu'on est pas rendu au point final, on roule cette boucle.
-		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY())) {
+		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY()) && loop++ < 100) {
 			
 			// On essaie, en ordre, aller tout droit, puis à droite, puis à gauche.
 			// Chaque fois, on vérifie si ce déplacement nous rapprocherais de notre but. Si oui, on utilise cette direction. Autrement, on essaie la prochaine.
-			for (int i = 0; i < 3; i++) {
-				int[] rotation = {0,1,3};
+			for (int i = 0; i < 4; i++) {
+				int[] rotation = {0,1,3,2};
 				directions testDirection = rotateDirection(directionActuelle, rotation[i]);
 				Intersection testProchaineInter = positionActuelle.movedFrom(testDirection, 1);
 				if (intersectionExiste(testProchaineInter) && (testProchaineInter.delta(arrivee) < positionActuelle.delta(arrivee))) {
@@ -190,8 +201,10 @@ public class Carte {
 				}
 			}
 		}
+		if (loop >= 100) throw new Exception("Boucle infinie pour trouver trajet! Départ: " + depart + "; arrivée: " + arrivee);
 		t.makeReady();
 		t.setDirection(directionActuelle);
+		//System.out.println("Trajet trouvé entre " + depart + " et " + arrivee + ": " + t);
 		return t;
 	}
 	

@@ -51,12 +51,19 @@ public class Trajet {
 	 * @throws Exception Si le trajet à combiner ne commence pas à la même intersection que ce trajet fini.
 	 */
 	public void combine(Trajet t) throws Exception {
-		if (getDestination() == t.getDepart()) {
-			intersections.addAll(t.getIntersections().subList(1, t.nbIntersections - 1));
-			nbIntersections = intersections.size();
-			makeReady();
-		} else {
-			throw new Exception("Le Trajet à combiner ne commence pas à la même intersection que ce Trajet fini.");
+		if (t.nbIntersections >= 1) {
+			if (nbIntersections == 0) {
+				setIntersections(t.getIntersections());
+			} else {
+				if (getDestination().equals(t.getDepart())) {
+					intersections.addAll(t.getIntersections().subList(1, t.getNbIntersections()));
+					nbIntersections = intersections.size();
+					makeReady();
+				} else {
+					throw new Exception("Le Trajet à combiner (" + t + ") ne commence pas à la même intersection que ce Trajet (" + this + ") fini.");
+				}
+				
+			}
 		}
 	}
 	
@@ -87,6 +94,7 @@ public class Trajet {
 	
 	public void setIntersections(ArrayList<Intersection> intersections) {
 		this.intersections = intersections;
+		nbIntersections = intersections.size();
 	}
 
 	public int getTemps() {
@@ -118,11 +126,17 @@ public class Trajet {
 	}
 	
 	public void findDirection() {
-		this.direction = carte.findDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+		try {
+			this.direction = carte.findDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.direction = directions.undefined;
+		}
+		
 	}
 	
 	public void makeReady() {
-		findDirection();
+		//findDirection();
 	}
 	 
 	 

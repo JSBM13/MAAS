@@ -27,9 +27,9 @@ public class Handler {
 		
 		ModeTransport vehicule = new ModeTransport(null, null, null, null, null);
 		Circuit[] circuits = new Circuit[3];
-		circuits[0] = new Circuit(vehicule, "(3,5) (5,5) (5,2) (3,2) (3,5)");
-		circuits[1] = new Circuit(vehicule, "(3,5) (5,5) (5,2) (3,2) (3,5)");
-		circuits[2] = new Circuit(vehicule, "(3,5) (5,5) (5,2) (3,2) (3,5)");
+		circuits[0] = new Circuit(vehicule, "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)");
+		circuits[1] = new Circuit(vehicule, "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)");
+		circuits[2] = new Circuit(vehicule, "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)");
 		
 		carte.setCircuits(circuits);
 		System.out.println(Arrays.toString(carte.getCircuits()));
@@ -42,7 +42,7 @@ public class Handler {
 		while (true) {
 			System.out.println("Entrez un point de départ et d'arrivée, dans la forme suivante: ");
 			System.out.println("x1 y1 x2 y2");
-			System.out.println(carte.trouverCircuits(new Intersection(scanner.nextInt(), scanner.nextInt()), new Intersection(scanner.nextInt(), scanner.nextInt()), vehicule));
+			System.out.println(Arrays.toString(carte.trouverCircuits(new Intersection(scanner.nextInt(), scanner.nextInt()), new Intersection(scanner.nextInt(), scanner.nextInt()), vehicule)));
 		}
 		
 
