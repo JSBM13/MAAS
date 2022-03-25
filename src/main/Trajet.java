@@ -19,6 +19,8 @@ public class Trajet {
 	private typeTransport vehicule;
 	private directions direction = directions.undefined;
 	
+	private int distanceDepart = -1;
+	private int distanceArrivee = -1;
 
 	public Trajet(Carte carte, Intersection ... intersections) {
 		super();
@@ -67,13 +69,51 @@ public class Trajet {
 		}
 	}
 	
+	public int calculateDistance() {
+		if (nbIntersections > 1) {
+			int distance = 0;
+			for (int i = 0; i < nbIntersections - 1; i++) {
+				Intersection point1 = intersections.get(i);
+				Intersection point2 = intersections.get(i + 1);
+				directions direction = carte.findDirection(point1, point2);
+				int distanceSegment = 0;
+				switch (direction) {
+				case nord:
+					distanceSegment = carte.getSegmentsVerticaux(point1.getY());
+					break;
+				case est:
+					distanceSegment = carte.getSegmentsHorizontaux(point1.getX());
+					break;
+				case sud:
+					distanceSegment = carte.getSegmentsVerticaux(point2.getY());
+					break;
+				case ouest:
+					distanceSegment = carte.getSegmentsHorizontaux(point2.getX());
+					break;
+				case undefined:
+					// Vraiment pas supposé...
+					break;
+				}
+				distance += distanceSegment;
+			}
+			this.distance = distance;
+		} else {
+			this.distance = 0;
+		}
+		
+		return this.distance;
+	}
+	
 
 	public String toString() {
 		String s = "Trajet: [ ";
 		for (Intersection inters : intersections) {
 			s += inters.toString() + " ";
 		}
-		return s + "]";
+		String autres = "";
+		autres = (distance != -1 ? "Distance=" + distance + "m" : "");
+		s += "] " + (autres != "" ? "( " + autres + " ) " : "");
+		return s;
 	}
 
 	public void setVehicule(typeTransport vehicule) {
@@ -125,9 +165,31 @@ public class Trajet {
 		this.direction = direction;
 	}
 	
+	public int getDistanceDepart() {
+		return distanceDepart;
+	}
+
+	public void setDistanceDepart(int distanceDepart) {
+		this.distanceDepart = distanceDepart;
+	}
+
+	public int getDistanceArrivee() {
+		return distanceArrivee;
+	}
+
+	public void setDistanceArrivee(int distanceArrivee) {
+		this.distanceArrivee = distanceArrivee;
+	}
+	
 	public void findDirection() {
 		try {
-			this.direction = carte.findDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+			if (nbIntersections > 1) {
+				this.direction = carte.findDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+			} else {
+				this.direction = directions.undefined;
+			}
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.direction = directions.undefined;
@@ -136,7 +198,8 @@ public class Trajet {
 	}
 	
 	public void makeReady() {
-		//findDirection();
+		findDirection();
+		calculateDistance();
 	}
 	 
 	 

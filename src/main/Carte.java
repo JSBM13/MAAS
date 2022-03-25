@@ -59,6 +59,51 @@ public class Carte {
 		this.typeRoutesHorizontales = typeRoutesHorizontales;
 	}
 	
+	public Itineraire choisirTrajets(Intersection depart, Intersection arrivee, ModeTransport vehicule) throws Exception {
+		Itineraire itin = new Itineraire("Autobus", "autobus");
+		
+		Trajet[] choix = trouverCircuits(depart, arrivee, vehicule);
+		
+		// On sélectionne le trajet qui minimise la distance à marcher depuis et vers les arrêts.
+		// S'il y a une égalité, on prend celui qui a le trajet le plus court.
+		int minimumDistanceArrets = -1;
+		int minimumDistanceTrajet = -1;
+		int indexMeilleur = -1;
+		
+		for (int i = 0; i < choix.length; i++) {
+			int distanceDepart = choix[i].getDistanceDepart();
+			int distanceArrivee = choix[i].getDistanceArrivee();
+			int distanceTrajet = choix[i].getDistance();
+			System.out.println("Trajet %d: distanceDepart=%d, distanceArrivee=%d, distanceTrajet=%d; %s".formatted(
+					i, distanceDepart, distanceArrivee, distanceTrajet, choix[i]));
+			
+			if (distanceDepart + distanceArrivee < minimumDistanceArrets || minimumDistanceArrets == -1) {
+				minimumDistanceArrets = distanceDepart + distanceArrivee;
+				minimumDistanceTrajet = distanceTrajet;
+				indexMeilleur = i;
+				
+			} else if (distanceDepart + distanceArrivee == minimumDistanceArrets && distanceTrajet < minimumDistanceTrajet) {
+				minimumDistanceArrets = distanceDepart + distanceArrivee;
+				minimumDistanceTrajet = distanceTrajet;
+				indexMeilleur = i;
+			}
+		}
+		
+		// Ajout à l'itinéraire de la marche entre l'intersection actuelle et celle du premier arrêt, si besoin.
+		if (choix[indexMeilleur].getDistanceDepart() > 0) {
+			itin.addTrajet(trouverTrajet(depart, choix[indexMeilleur].getDepart(), vehicule, directions.undefined));
+		}
+		// Ajout du trajet en transport en commun
+		itin.addTrajet(choix[indexMeilleur]);
+		// AJout de la marche entre le dernier arrêt et la destination, si besoin.
+		if (choix[indexMeilleur].getDistanceArrivee() > 0) {
+			itin.addTrajet(trouverTrajet(choix[indexMeilleur].getDestination(), arrivee, vehicule, directions.undefined));
+		}
+		
+		itin.setNom("Autobus circuit " + indexMeilleur);
+		return itin;
+	}
+	
 	/**
 	 * Détermine, pour chaque circuit de la carte, le trajet optimal pour embarquer aussi près que possible d'un
 	 * point de départ et débarquer aussi près que possible d'un point d'arrivée.
@@ -96,6 +141,8 @@ public class Carte {
 			//System.out.println("Pour circuit " + i + ": " + pointDepart + ", " + pointArrivee);
 			t.setIntersections(produireTrajetCircuit(i, pointDepart, pointArrivee).getIntersections());
 			t.makeReady();
+			t.setDistanceDepart(distanceDepart);
+			t.setDistanceArrivee(distanceArrivee);
 			choix[i] = t;
 		}
 		
@@ -220,8 +267,8 @@ public class Carte {
 		int deltaY = arrivee.getY() - depart.getY();
 		
 		if (deltaX == 0) {
-			if (deltaY > 0) return directions.sud;
-			if (deltaY < 0) return directions.nord;
+			if (deltaY < 0) return directions.sud;
+			if (deltaY > 0) return directions.nord;
 			
 		} else if (deltaY == 0) {
 			if (deltaX > 0) return directions.est;

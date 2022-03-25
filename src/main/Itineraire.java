@@ -1,26 +1,35 @@
 package main;
 
+import java.util.ArrayList;
 import main.typeTransport;
 
 public class Itineraire {
-	public typeTransport[] vehicules;
-	public Trajet[] trajets;
+	public ArrayList<typeTransport> vehicules;
+	public ArrayList<Trajet> trajets;
 	public String nom;
 	public String typeTrajet;
 	
-	public Itineraire(typeTransport[] vehicules, Trajet[] trajets, String nom, String typeTrajet) {
+	public Itineraire(String nom, String typeTrajet) {
 		super();
-		this.vehicules = vehicules;
-		this.trajets = trajets;
 		this.nom = nom;
 		this.typeTrajet = typeTrajet;
+		this.trajets = new ArrayList<Trajet>();
+		this.vehicules = new ArrayList<typeTransport>();
+	}
+	
+	public Itineraire addTrajet(Trajet trajet) {
+		trajets.add(trajet);
+		if (!vehicules.contains(trajet.getVehicule())) {
+			vehicules.add(trajet.getVehicule());
+		}
+		return this;
 	}
 
-	public typeTransport[] getVehicules() {
+	public ArrayList<typeTransport> getVehicules() {
 		return vehicules;
 	}
 
-	public Trajet[] getTrajets() {
+	public ArrayList<Trajet> getTrajets() {
 		return trajets;
 	}
 
@@ -30,6 +39,18 @@ public class Itineraire {
 
 	public String getTypeTrajet() {
 		return typeTrajet;
+	}
+	
+	public String toString() {
+		String s = "Itineraire " + nom + " (" + typeTrajet + "): { ";
+		for (Trajet trajet : trajets) {
+			s += trajet.toString();
+		}
+		return s + "} ";
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 	
 	
