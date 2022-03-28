@@ -6,6 +6,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTabbedPane;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,20 +26,19 @@ import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.Dialog.ModalityType;
 
-public class ParamMAAS extends JFrame {
+public class ParamMAAS extends JDialog {
 
 	private JPanel contentPane;
 	private JTable tableRoutesVerticales;
 	private JTable tableRoutesHorizontales;
 	private JTable tableVehicules;
 	private JTable tablePoints;
-	
-	private ArrayList<String> circuitsAutobus;
-	private ArrayList<String> circuitsMetro;
 	private JTable tableAutobus;
 	private JTable tableMetro;
 
+	private Parametres resultat;
 	/**
 	 * Launch the application.
 	 */
@@ -52,6 +53,35 @@ public class ParamMAAS extends JFrame {
 				}
 			}
 		});
+	}
+	
+	public void cancel() {
+		dispose();
+	}
+	
+	public void ok() {
+		JOptionPane.showMessageDialog(null, "Horizontal: " + extractRouteData(tableRoutesHorizontales));
+		JOptionPane.showMessageDialog(null, "Vertical: " + extractRouteData(tableRoutesVerticales));
+		JOptionPane.showMessageDialog(null, "Véhicules: " + extractVehiculesData());
+		JOptionPane.showMessageDialog(null, "Points: " + extractPointData());
+		JOptionPane.showMessageDialog(null, "Circuits Autobus: " + extractCircuitsData(tableAutobus));
+		JOptionPane.showMessageDialog(null, "Circuits Métro: " + extractCircuitsData(tableMetro));
+		String routesHorizontales = extractRouteData(tableRoutesHorizontales);
+		String routesVerticales = extractRouteData(tableRoutesVerticales);
+		String vehicules = extractVehiculesData();
+		String points = extractPointData();
+		String circuitsAutobus = extractCircuitsData(tableAutobus);
+		String circuitsMetro = extractCircuitsData(tableMetro);
+		resultat = new Parametres(routesHorizontales, routesVerticales, vehicules, points, circuitsAutobus, circuitsMetro);
+		
+		dispose();
+	}
+	
+
+	public Parametres showDialog(Parametres initial) {
+		populate(initial);
+		setVisible(true);
+		return resultat;
 	}
 	
 	public String extractRouteData(JTable table) {
@@ -84,13 +114,24 @@ public class ParamMAAS extends JFrame {
 		}
 	}
 	
-	public void populate() {
-		populateRoutes(tableRoutesVerticales, "1,2,P3,4");
-		populateRoutes(tableRoutesHorizontales, "1,P2,3,4");
-		populateVehicules("Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0");
-		populatePoints("(0,1);(0,4);(5,4)");
-		populateCircuits("(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1);(1,4) (1,2) (3,0) (3,2) (4,3) (5,3) (3,4) (1,4)", tableAutobus);
-		populateCircuits("(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1)", tableMetro);
+	public void populate(Parametres initial) {
+		Parametres paramInitiaux = initial;
+		if (initial == null) {
+			paramInitiaux = new Parametres(
+					"1,2,P3,4",
+					"1,P2,3,4",
+					"Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0",
+					"(0,1);(0,4);(5,4)",
+					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1);(1,4) (1,2) (3,0) (3,2) (4,3) (5,3) (3,4) (1,4)",
+					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1)"
+					);
+		}
+		populateRoutes(tableRoutesVerticales, paramInitiaux.routesVerticales );
+		populateRoutes(tableRoutesHorizontales, paramInitiaux.routesHorizontales);
+		populateVehicules(paramInitiaux.vehicules);
+		populatePoints(paramInitiaux.points);
+		populateCircuits(paramInitiaux.circuitsAutobus, tableAutobus);
+		populateCircuits(paramInitiaux.circuitsMetro, tableMetro);
 	}
 	
 	public void populateRoutes(JTable table, String params) {
@@ -182,32 +223,19 @@ public class ParamMAAS extends JFrame {
 		}
 		return String.join(";", circuits);
 	}
-	
-	public void ok() {
-		JOptionPane.showMessageDialog(null, "Horizontal: " + extractRouteData(tableRoutesHorizontales));
-		JOptionPane.showMessageDialog(null, "Vertical: " + extractRouteData(tableRoutesVerticales));
-		JOptionPane.showMessageDialog(null, "Véhicules: " + extractVehiculesData());
-		JOptionPane.showMessageDialog(null, "Points: " + extractPointData());
-		JOptionPane.showMessageDialog(null, "Circuits Autobus: " + extractCircuitsData(tableAutobus));
-		JOptionPane.showMessageDialog(null, "Circuits Métro: " + extractCircuitsData(tableMetro));
-	}
-	
-	public void cancel() {
-		
-	}
 
 	/**
 	 * Create the frame.
 	 */
 	@SuppressWarnings("serial")
 	public ParamMAAS() {
+		setModalityType(ModalityType.DOCUMENT_MODAL);
 		
-		circuitsAutobus = new ArrayList<String>();
-		circuitsMetro = new ArrayList<String>();
+		resultat = null;
 		
 		setTitle("Param\u00E8tres");
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 962, 617);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -562,8 +590,6 @@ public class ParamMAAS extends JFrame {
 		});
 		btnAnnuler.setBounds(748, 544, 89, 23);
 		contentPane.add(btnAnnuler);
-		
-		populate();
 	}
 	
 	class Route {
