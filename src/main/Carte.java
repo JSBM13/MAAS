@@ -196,8 +196,8 @@ public class Carte {
 	 */
 	public Trajet trouverTrajet(Intersection depart, Intersection arrivee, ModeTransport vehicule, directions direction ) throws Exception {
 		
-		if (!intersectionExiste(depart)) throw new Exception("L'intersection de départ n'existe pas.");
-		if (!intersectionExiste(arrivee)) throw new Exception("L'intersection d'arrivée n'existe pas.");
+		if (!intersectionExiste(depart)) throw new Exception("L'intersection de départ n'existe pas. " + depart);
+		if (!intersectionExiste(arrivee)) throw new Exception("L'intersection d'arrivée n'existe pas. " + arrivee);
 		
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
@@ -381,6 +381,17 @@ public class Carte {
 	
 	public typesIntersection getTypeIntersection(Intersection intersection) {
 		return getTypeIntersection(intersection.getX(), intersection.getY());
+	}
+	
+	/**
+	 * Prends quatres chaines de caractères, représentant respectivement les distances des routes verticales et horizontales et le type des routes verticales et horizontales, et
+	 * les utilises pour former les routes verticales et horizontales de la Carte.
+	 * Le format accepté pour les distances est "50,50,50", soit une liste d'entiers séparés par une virgule.
+	 * Le format accepté pour les types de routes est "PSPS", où P représente une route principale et S une route secondaire.
+	 * @param input
+	 */
+	public void parseRoutes(String inputDistancesRoutesVerticales, String inputDistancesRoutesHorizontales, String inputTypesRoutesVerticales, String inputTypesRoutesHorizontales) {
+		
 	}
 	
 	@SuppressWarnings("serial")

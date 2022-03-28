@@ -2,18 +2,22 @@ package main;
 
 
 public final class Parametres {
-	String routesHorizontales;
-	String routesVerticales;
+	String distanceRoutesVerticales;
+	String distanceRoutesHorizontales;
+	String typesRoutesVerticales;
+	String typesRoutesHorizontales;
 	String vehicules;
 	String points;
 	String circuitsAutobus;
 	String circuitsMetro;
 	
-	public Parametres(String routesHorizontales, String routesVerticales, String vehicules, String points,
+	public Parametres(String distanceRoutesVerticales, String distanceRoutesHorizontales, String typesRoutesVerticales, String typesRoutesHorizontales, String vehicules, String points,
 			String circuitsAutobus, String circuitsMetro) {
 		super();
-		this.routesHorizontales = routesHorizontales;
-		this.routesVerticales = routesVerticales;
+		this.distanceRoutesVerticales = distanceRoutesVerticales;
+		this.distanceRoutesHorizontales = distanceRoutesHorizontales;
+		this.typesRoutesVerticales = typesRoutesVerticales;
+		this.typesRoutesHorizontales = typesRoutesHorizontales;
 		this.vehicules = vehicules;
 		this.points = points;
 		this.circuitsAutobus = circuitsAutobus;
@@ -21,8 +25,10 @@ public final class Parametres {
 	}
 	
 	public String toSingleString() {
-		return 	routesHorizontales + "\n" +
-				routesVerticales + "\n" +
+		return 	distanceRoutesVerticales + "\n" +
+				distanceRoutesHorizontales + "\n" +
+				typesRoutesVerticales + "\n" +
+				typesRoutesHorizontales + "\n" +
 				vehicules + "\n" +
 				points + "\n" +
 				circuitsAutobus + "\n" +
@@ -30,8 +36,10 @@ public final class Parametres {
 	}
 	
 	public String toString() {
-		return 	"Routes Horizontales: " + routesHorizontales + "\n" +
-				"Routes Verticales: " + routesVerticales + "\n" +
+		return 	"Distances Routes Verticales: " + distanceRoutesVerticales + "\n" +
+				"Distances Routes Horizontales: " + distanceRoutesHorizontales + "\n" +
+				"Types Routes Verticales: " + typesRoutesVerticales + "\n" +
+				"Types Routes Horizontales: " + typesRoutesHorizontales + "\n" +
 				"Vehicules: " + vehicules + "\n" +
 				"Points: " + points + "\n" +
 				"Circuits Autobus: " + circuitsAutobus + "\n" +

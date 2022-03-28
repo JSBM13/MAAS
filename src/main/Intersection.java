@@ -23,6 +23,12 @@ public class Intersection {
 		this.type = typesIntersection.undefined;
 	}
 	
+	public Intersection(String input) {
+		String s = input.replace("(", "").replace(")", "").replace(" ", "");
+		x = Integer.parseInt(s.substring(0,s.indexOf(',')));
+		y = Integer.parseInt(s.substring(s.indexOf(',') + 1));
+	}
+	
 	
 	/**
 	 * Bouge l'intersection actuelle par une certaine distance dans la direction spécifiée.
@@ -85,5 +91,22 @@ public class Intersection {
 			if (intersection.x == x && intersection.y == y) return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Prends une chaine de caractère représentant une liste de points (comme fournis dans ParamMAAS) et le renvoie sous forme du tableau d'Intersections associé.
+	 * Le format accepté est "(x0,y0);(x1,y1);(x2,y2)", où les différents points sont séparés par des points-virgules. Des espaces peuvent être ajoutés
+	 * n'importe où.
+	 * @param input La chaine de caractère représentant les points.
+	 * @return Le tableau d'Intersections associés.
+	 */
+	public static Intersection[] parseIntersections(String input) {
+		String[] coordonnees = input.split(";");
+		Intersection[] tableau = new Intersection[coordonnees.length];
+		for (int i = 0; i < coordonnees.length; i++) {
+			String point = coordonnees[i];
+			tableau[i] = new Intersection(point);
+		}
+		return tableau;
 	}
 }

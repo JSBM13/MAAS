@@ -9,6 +9,16 @@ import main.Carte.typesRoute;
 
 public class Handler {
 
+	final static Parametres defaultParams = new Parametres("90,60,120",
+			"150,50,100",
+			"SSPS",
+			"SPSS",
+			"Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0",
+			"(0,1);(0,4);(5,4)",
+			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)",
+			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
+			);
+	
 	public static void main(String[] args) throws Exception {
 		
 		Scanner scanner = new Scanner(System.in);
@@ -25,11 +35,16 @@ public class Handler {
 			System.out.println(e.getMessage() + " " + e.orientation);
 		}
 		
-		ModeTransport vehicule = new ModeTransport(null, null, null, null, null);
-		Circuit[] circuits = new Circuit[3];
-		circuits[0] = new Circuit(vehicule, "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)");
-		circuits[1] = new Circuit(vehicule, "(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1)");
-		circuits[2] = new Circuit(vehicule, "(1,4) (1,2) (3,0) (3,2) (4,3) (5,3) (3,4) (1,4)");
+		ModeTransport vehicules[] = new ModeTransport[6];
+		String[] inputVehicules = new String[6];
+		inputVehicules = defaultParams.vehicules.split(";");
+		vehicules[0] = new ModeTransport("Véhicule", typeTransport.marche, true, true, false, inputVehicules[0]);
+		vehicules[1] = new ModeTransport("Véhicule", typeTransport.velo, true, true, false, inputVehicules[1]);
+		vehicules[2] = new ModeTransport("Véhicule", typeTransport.autobus, true, true, true, inputVehicules[2]);
+		vehicules[3] = new ModeTransport("Véhicule", typeTransport.metro, true, true, true, inputVehicules[3]);
+		vehicules[4] = new ModeTransport("Véhicule", typeTransport.voiture, true, false, false, inputVehicules[4]);
+		vehicules[5] = new ModeTransport("Véhicule", typeTransport.voiture, false, true, false, inputVehicules[5]);
+		Circuit[] circuits = Circuit.parseCircuits(defaultParams.circuitsAutobus, vehicules[0]);
 		
 		carte.setCircuits(circuits);
 		System.out.println(Arrays.toString(carte.getCircuits()));
@@ -42,10 +57,12 @@ public class Handler {
 		while (true) {
 			System.out.println("Entrez un point de départ et d'arrivée, dans la forme suivante: ");
 			System.out.println("x1 y1 x2 y2");
-			System.out.println((carte.choisirTrajets(new Intersection(scanner.nextInt(), scanner.nextInt()), new Intersection(scanner.nextInt(), scanner.nextInt()), vehicule)));
+			System.out.println((carte.choisirTrajets(new Intersection(scanner.nextInt(), scanner.nextInt()), new Intersection(scanner.nextInt(), scanner.nextInt()), vehicules[0])));
 		}
 		
 
 	}
+	
+	
 
 }

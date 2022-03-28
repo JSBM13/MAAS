@@ -97,7 +97,9 @@ public class TestPagePrincipal extends JFrame {
 						lines[2],
 						lines[3],
 						lines[4],
-						lines[5]
+						lines[5],
+						lines[6],
+						lines[7]
 						);
 						
 						

@@ -60,19 +60,15 @@ public class ParamMAAS extends JDialog {
 	}
 	
 	public void ok() {
-		JOptionPane.showMessageDialog(null, "Horizontal: " + extractRouteData(tableRoutesHorizontales));
-		JOptionPane.showMessageDialog(null, "Vertical: " + extractRouteData(tableRoutesVerticales));
-		JOptionPane.showMessageDialog(null, "Véhicules: " + extractVehiculesData());
-		JOptionPane.showMessageDialog(null, "Points: " + extractPointData());
-		JOptionPane.showMessageDialog(null, "Circuits Autobus: " + extractCircuitsData(tableAutobus));
-		JOptionPane.showMessageDialog(null, "Circuits Métro: " + extractCircuitsData(tableMetro));
-		String routesHorizontales = extractRouteData(tableRoutesHorizontales);
-		String routesVerticales = extractRouteData(tableRoutesVerticales);
+		String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesVerticales);
+		String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesHorizontales);
+		String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);;
+		String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
 		String vehicules = extractVehiculesData();
 		String points = extractPointData();
 		String circuitsAutobus = extractCircuitsData(tableAutobus);
 		String circuitsMetro = extractCircuitsData(tableMetro);
-		resultat = new Parametres(routesHorizontales, routesVerticales, vehicules, points, circuitsAutobus, circuitsMetro);
+		resultat = new Parametres(distanceRoutesVerticales, distanceRoutesHorizontales, typesRoutesVerticales, typesRoutesHorizontales, vehicules, points, circuitsAutobus, circuitsMetro);
 		
 		dispose();
 	}
@@ -84,13 +80,22 @@ public class ParamMAAS extends JDialog {
 		return resultat;
 	}
 	
-	public String extractRouteData(JTable table) {
+	public String extractRouteDistanceData(JTable table) {
 		TableModel model = table.getModel();
 		String[] routes = new String[table.getRowCount()];
 		for (int i = 0; i < model.getRowCount(); i++) {
-			routes[i] = ((boolean)model.getValueAt(i, 1) == true ? "P" : "") + model.getValueAt(i, 2).toString();
+			routes[i] = model.getValueAt(i, 2).toString();
 		}
 		return String.join(",", routes);
+	}
+	
+	public String extractRouteTypeData(JTable table) {
+		TableModel model = table.getModel();
+		String routes = "";
+		for (int i = 0; i < model.getRowCount(); i++) {
+			routes += ((boolean)model.getValueAt(i, 1) ? "P" : "S" );
+		}
+		return routes;
 	}
 	
 	public void addRow(JTable table, Object[] obj) {
@@ -118,24 +123,26 @@ public class ParamMAAS extends JDialog {
 		Parametres paramInitiaux = initial;
 		if (initial == null) {
 			paramInitiaux = new Parametres(
-					"1,2,P3,4",
-					"1,P2,3,4",
+					"30,50,100",
+					"60,90,150",
+					"SPSS",
+					"SSPS",
 					"Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0",
 					"(0,1);(0,4);(5,4)",
 					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1);(1,4) (1,2) (3,0) (3,2) (4,3) (5,3) (3,4) (1,4)",
 					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1)"
 					);
 		}
-		populateRoutes(tableRoutesVerticales, paramInitiaux.routesVerticales );
-		populateRoutes(tableRoutesHorizontales, paramInitiaux.routesHorizontales);
+		populateRoutes(tableRoutesVerticales, paramInitiaux.distanceRoutesVerticales, paramInitiaux.typesRoutesVerticales );
+		populateRoutes(tableRoutesHorizontales, paramInitiaux.distanceRoutesHorizontales, paramInitiaux.typesRoutesHorizontales);
 		populateVehicules(paramInitiaux.vehicules);
 		populatePoints(paramInitiaux.points);
 		populateCircuits(paramInitiaux.circuitsAutobus, tableAutobus);
 		populateCircuits(paramInitiaux.circuitsMetro, tableMetro);
 	}
 	
-	public void populateRoutes(JTable table, String params) {
-		Route[] routes = parseRoutes(params);
+	public void populateRoutes(JTable table, String paramsDistance, String paramsType) {
+		Route[] routes = parseRoutes(paramsDistance, paramsType);
 		DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 		for (int i = 0; i < routes.length; i++) {
 			Route route = routes[i];
@@ -144,17 +151,14 @@ public class ParamMAAS extends JDialog {
 		table.setModel(tableModel);
 	}
 	
-	public Route[] parseRoutes(String params) {
-		String[] routes = params.split(",");
-		Route[] output = new Route[routes.length];
+	public Route[] parseRoutes(String paramsDistance, String paramType) {
+		String[] distances = paramsDistance.split(",");
+		Route[] output = new Route[paramType.length()];
 		
-		for (int i = 0; i < routes.length; i++) {
-			String route = routes[i];
-			if (route.charAt(0) == 'P') {
-				output[i] = new Route(Integer.parseInt(route.substring(1)), true);
-			} else {
-				output[i] = new Route(Integer.parseInt(route), false);
-			}
+		output[0] = new Route(0, (paramType.charAt(0) == 'P'));
+		for (int i = 1; i < paramType.length(); i++) {
+			String route = distances[i - 1];
+			output[i] = new Route(Integer.parseInt(route), (paramType.charAt(i) == 'P'));
 		}
 		
 		return output;

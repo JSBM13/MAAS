@@ -13,38 +13,49 @@ public class ModeTransport {
 	private String nom;
 	private typeTransport type;
 
-	private int[] vitesses;
-	private int[] tempsArret;
+	private int vitesseRoutePrincipale;
+	private int vitesseRouteSecondaire;
+	private int arretIntersectionPrincPrinc;
+	private int arretIntersectionPrincSec;
+	private int arretIntersectionSecSec;
 	private typesIntersection debutTrajet;
 	private boolean[] routesPermises;
 	private int delaiEmbarquement;
-	private boolean varieSelonHeure;
+	private boolean transportHeureReguliere;
+	private boolean transportHeurePointe;
 	private boolean transportEnCommun;
 	
 	
-	public ModeTransport(String nom, int[] vitesses, int[] tempsArret, typesIntersection debutTrajet,
-			boolean[] routesPermises, int delaiEmbarquement) {
+	public ModeTransport(String nom, typeTransport type, boolean transportHeureReguliere, boolean transportHeurePointe, boolean transportEnCommun, String input) {
 		super();
 		this.nom = nom;
-		this.vitesses = vitesses;
-		this.tempsArret = tempsArret;
+		this.type = type;
+		this.transportHeureReguliere = transportHeureReguliere;
+		this.transportHeurePointe = transportHeurePointe;
+		this.transportEnCommun = transportEnCommun;
+		parseInput(input);	
+	}
+	
+	public ModeTransport(String nom, typeTransport type, int vitesseRoutePrincipale, int vitesseRouteSecondaire,
+			int arretIntersectionPrincPrinc, int arretIntersectionPrincSec, int arretIntersectionSecSec,
+			typesIntersection debutTrajet, boolean[] routesPermises, int delaiEmbarquement, boolean transportHeureReguliere, boolean transportHeurePointe,
+			boolean transportEnCommun) {
+		super();
+		this.nom = nom;
+		this.type = type;
+		this.vitesseRoutePrincipale = vitesseRoutePrincipale;
+		this.vitesseRouteSecondaire = vitesseRouteSecondaire;
+		this.arretIntersectionPrincPrinc = arretIntersectionPrincPrinc;
+		this.arretIntersectionPrincSec = arretIntersectionPrincSec;
+		this.arretIntersectionSecSec = arretIntersectionSecSec;
 		this.debutTrajet = debutTrajet;
 		this.routesPermises = routesPermises;
 		this.delaiEmbarquement = delaiEmbarquement;
-		this.transportEnCommun = true;
+		this.transportHeureReguliere = transportHeureReguliere;
+		this.transportHeurePointe = transportHeurePointe;
+		this.transportEnCommun = transportEnCommun;
 	}
-	
-	public ModeTransport(String nom, int[] vitesses, int[] tempsArret, typesIntersection debutTrajet,
-			boolean[] routesPermises) {
-		super();
-		this.nom = nom;
-		this.vitesses = vitesses;
-		this.tempsArret = tempsArret;
-		this.debutTrajet = debutTrajet;
-		this.routesPermises = routesPermises;
-		this.transportEnCommun = false;
-	}
-	
+
 	/**
 	 * Calcule le temps nécessaire pour parcourir un trajet. Cette méthode ne prend en compte que la distance parcourue et le nombre d'arrêt, et ne prend pas en compte le temps de la journée.
 	 * @param distanceRoutePrincipale Distance parcourue sur une route principale, en mètres.
@@ -66,10 +77,10 @@ public class ModeTransport {
 	 */
 	public int calculateTempsDeplacement(int distanceRoutePrincipale, int distanceRouteSecondaire, Intersection[] intersections, boolean heureDePointe) {
 		int t = 0;
-		t += Math.round(distanceRoutePrincipale * vitesses[(heureDePointe ? 2 : 0)]);
-		t += Math.round(distanceRouteSecondaire * vitesses[(heureDePointe ? 3 : 1)]);
+		t += Math.round(distanceRoutePrincipale * getVitesse(typesRoute.principale));
+		t += Math.round(distanceRouteSecondaire * getVitesse(typesRoute.secondaire));
 		for (Intersection intersection : intersections) {
-			t += tempsArret[intersection.getType().ordinal() + (heureDePointe? 3 : 0)];
+			t += getTempsIntersection(intersection.getType());
 		}
 		return t;
 	}
@@ -78,9 +89,61 @@ public class ModeTransport {
 		return type;
 	}
 	
+	/**
+	 * Retourne le temps d'attente à une intersection de ce mode de transport selon le type d'intersection.
+	 * @param type Le type d'intersection.
+	 * @return Le temps d'arrêt à une intersection.
+	 */
+	public int getTempsIntersection(typesIntersection type) {
+		switch (type) {
+		case PrincPrinc:
+			return arretIntersectionPrincPrinc;
+		case PrincSec:
+			return arretIntersectionPrincSec;
+		case SecSec:
+			return arretIntersectionSecSec;
+		case undefined:
+		default:
+			return -1;
+		}
+	}
+	
+	/**
+	 * Retourne la vitesse de ce mode de transport selon le type de route.
+	 * @param type Le type de route.
+	 * @return La vitesse.
+	 */
+	public int getVitesse(typesRoute type) {
+		switch (type) {
+		case principale:
+			return vitesseRoutePrincipale;
+		case secondaire:
+			return vitesseRouteSecondaire;
+		default:
+			return -1;
+		}
+	}
+	
 	
 	public boolean peutAllerSurRoute(typesRoute route) {
 		return routesPermises[route.ordinal()];
+	}
+	
+	public void parseInput(String input) {
+		String[] data = input.split(",");
+		int[] values = new int[data.length];
+		for (int i = 1; i < data.length; i++) {
+			values[i] = Integer.parseInt(data[i]);
+		}
+
+		this.vitesseRoutePrincipale = values[0];
+		this.vitesseRouteSecondaire = values[1];
+		this.arretIntersectionPrincPrinc = values[2];
+		this.arretIntersectionPrincSec = values[3];
+		this.arretIntersectionSecSec = values[4];
+		this.delaiEmbarquement = values[5];
+		//this.debutTrajet = values[];
+		//this.routesPermises = values[];
 	}
 	
 }
