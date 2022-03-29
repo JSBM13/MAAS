@@ -27,7 +27,7 @@ public class Map extends JPanel {
 	int mapWidth;
 	int verticalMargin;
 	int horizontalMargin;
-	int scale;
+	double scale;
 	
 	int[] positionRoutesHorizontales;
 	int[] positionRoutesVerticales;
@@ -46,21 +46,45 @@ public class Map extends JPanel {
 
 	private void paintCarte(Graphics2D g2D) {
 		
-		mapHeight = sumArray(carte.getSegmentsHorizontaux());
-		mapWidth = sumArray(carte.getSegmentsVerticaux());
+		mapWidth = sumArray(carte.getSegmentsHorizontaux());
+		mapHeight = sumArray(carte.getSegmentsVerticaux());
 		
 		positionRoutesHorizontales = sumFromBefore(carte.getSegmentsVerticaux());
 		positionRoutesVerticales = sumFromBefore(carte.getSegmentsHorizontaux());
 		
 		setScale();
+		paintRoutes(g2D);
 		
+	}
+	
+	private void paintRoutes(Graphics2D g2D) {
 		for (int i = 0; i < carte.getNbRoutesVerticales(); i++) {
-			paintRoute(g2D, positionRoutesVerticales[i], 0, positionRoutesVerticales[i], mapWidth, carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale);
+			if (carte.getTypeRoute(orientations.verticale, i) == typesRoute.secondaire) {
+				paintRoute(g2D, positionRoutesVerticales[i], 0, positionRoutesVerticales[i], mapHeight, carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale);
+			}
+			
 		}
 		
 		for (int i = 0; i < carte.getNbRoutesHorizontales(); i++) {
-			paintRoute(g2D, 0, positionRoutesHorizontales[i], mapHeight, positionRoutesHorizontales[i], carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale);
+			if (carte.getTypeRoute(orientations.horizontale, i) == typesRoute.secondaire) {
+				paintRoute(g2D, 0, positionRoutesHorizontales[i], mapWidth, positionRoutesHorizontales[i], carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale);
+			}
+			
 		}
+		for (int i = 0; i < carte.getNbRoutesVerticales(); i++) {
+			if (carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale) {
+				paintRoute(g2D, positionRoutesVerticales[i], 0, positionRoutesVerticales[i], mapHeight, carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale);
+			}
+			
+		}
+		
+		for (int i = 0; i < carte.getNbRoutesHorizontales(); i++) {
+			if (carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale) {
+				paintRoute(g2D, 0, positionRoutesHorizontales[i], mapWidth, positionRoutesHorizontales[i], carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale);
+			}
+			
+		}
+		
 	}
 	
 	private int sumArray(int[] array) {
@@ -84,29 +108,29 @@ public class Map extends JPanel {
 	
 	private void paintRoute(Graphics2D g2D, int x1, int y1, int x2, int y2, boolean principal) {
 		if (principal) {
-			paintLine(g2D, scale(x1,y1), scale(x2,y2), Color.black, 6);
+			paintLine(g2D, scale(x1 - 1,y1 - 1), scale(x2 - 1,y2 - 1), Color.decode("#202020"), 8);
 		} else {
-			paintLine(g2D, scale(x1,y1), scale(x2,y2), Color.black, 4);
+			paintLine(g2D, scale(x1,y1), scale(x2,y2), Color.decode("#A0A0A0"), 6);
 		}
 		
 	}
 	
 	private void paintLine(Graphics2D g2D, PointPixel p1, PointPixel p2, Color color, int size) {
 		g2D.setPaint(color);
-		g2D.setStroke(new BasicStroke(size));
+		g2D.setStroke(new BasicStroke(size, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
 		g2D.drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 	
 	private PointPixel scale(int x, int y) {
-		return new PointPixel((x / scale) + horizontalMargin, (y / scale) + verticalMargin);
+		return new PointPixel((x * scale) + verticalMargin, getHeight() - ((y * scale) + horizontalMargin));
 	}
 
 	public void setScale() {
-		int width = this.getWidth() - 40;
-		int height = this.getHeight() - 40;
-		this.scale = (int) Math.max(Math.ceil(1.0 * mapHeight / height), Math.ceil(1.0 * mapWidth / width));
-		this.verticalMargin = (height - (mapHeight / scale)) / 2;
-		this.horizontalMargin = (width - (mapWidth / scale)) / 2;
+		int width = this.getWidth()- 16;
+		int height = this.getHeight() - 16;
+		this.scale = Math.min(1.0 * height / mapHeight, 1.0 * width / mapWidth);
+		this.verticalMargin = ((int)(width - (mapWidth * scale)) / 2) + 8;
+		this.horizontalMargin = ((int)(height - (mapHeight * scale)) / 2) + 8;
 	}
 
 	public Map() {
@@ -136,7 +160,7 @@ public class Map extends JPanel {
 		this.mapWidth = mapWidth;
 	}
 
-	public int getScale() {
+	public double getScale() {
 		return scale;
 	}
 	
@@ -144,9 +168,9 @@ public class Map extends JPanel {
 	private class PointPixel {
 		int x;
 		int y;
-		PointPixel(int x, int y ) {
-			this.x = x;
-			this.y = y;
+		PointPixel(double x, double y ) {
+			this.x = (int) Math.round(x);
+			this.y = (int) Math.round(y);
 		}
 	}
 	
