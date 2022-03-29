@@ -1,21 +1,18 @@
 package main;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Scanner;
-
-import main.Carte.directions;
 import main.Carte.typesRoute;
 
 public class Handler {
 
-	final static Parametres defaultParams = new Parametres("90,60,120",
-			"150,50,100",
-			"SSPS",
-			"SPSS",
-			"Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0",
+	final static Parametres defaultParams = new Parametres("400,300,400,300",
+			"400,300,400,300,400",
+			"PSPSPS",
+			"SPSSP",
+			"Marche,1,1,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,20,14,15,20,10,300;Métro,25,25,45,0,0,180;Voiture (régulier),20,14,60,40,10,0;Voiture (heure de pointe),8,10,90,60,45,0",
 			"(0,1);(0,4);(5,4)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)",
+			"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
 			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
 			);
 	
@@ -23,14 +20,14 @@ public class Handler {
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		int[] segVert = {400,300,400,300};
+		/*int[] segVert = {400,300,400,300};
 		int[] segHor = {400,300,400,300,400};
 		Carte.typesRoute[] typeVert = {typesRoute.principale, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire};
-		Carte.typesRoute[] typeHor = {typesRoute.principale, typesRoute.secondaire, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire};
+		Carte.typesRoute[] typeHor = {typesRoute.principale, typesRoute.secondaire, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire};*/
 		
 		Carte carte = null;
 		try {
-			carte = new Carte(6, 5, segVert, segHor, typeVert, typeHor);
+			carte = new Carte(defaultParams.distanceRoutesVerticales, defaultParams.distanceRoutesHorizontales, defaultParams.typesRoutesVerticales, defaultParams.typesRoutesHorizontales);
 		} catch (Carte.UnequalNumberOfRoadsException e) {
 			System.out.println(e.getMessage() + " " + e.orientation);
 		}
@@ -44,7 +41,7 @@ public class Handler {
 		vehicules[3] = new ModeTransport("Véhicule", typeTransport.metro, true, true, true, inputVehicules[3]);
 		vehicules[4] = new ModeTransport("Véhicule", typeTransport.voiture, true, false, false, inputVehicules[4]);
 		vehicules[5] = new ModeTransport("Véhicule", typeTransport.voiture, false, true, false, inputVehicules[5]);
-		Circuit[] circuits = Circuit.parseCircuits(defaultParams.circuitsAutobus, vehicules[0]);
+		Circuit[] circuits = Circuit.parseCircuits(defaultParams.circuitsAutobus, vehicules[2]);
 		
 		carte.setCircuits(circuits);
 		System.out.println(Arrays.toString(carte.getCircuits()));

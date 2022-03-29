@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import main.Carte.directions;
+import main.Carte.orientations;
+import main.Carte.typesRoute;
 import main.Intersection;
 
 public class Trajet {
@@ -16,21 +18,15 @@ public class Trajet {
 	 
 	private int temps;
 	private int distance;
-	private typeTransport vehicule;
+	private int distancePrincipale;
+	private int distanceSecondaire;
+	private ModeTransport vehicule;
 	private directions direction = directions.undefined;
 	
 	private int distanceDepart = -1;
 	private int distanceArrivee = -1;
-
-	public Trajet(Carte carte, Intersection ... intersections) {
-		super();
-		this.carte = carte;
-		this.nbIntersections = intersections.length;
-		this.intersections = new ArrayList<>(Arrays.asList(intersections));
-		this.vehicule = typeTransport.undefined;
-	}
 	
-	public Trajet(Carte carte, typeTransport vehicule, Intersection ... intersections) {
+	public Trajet(Carte carte, ModeTransport vehicule, Intersection ... intersections) {
 		super();
 		this.carte = carte;
 		this.nbIntersections = intersections.length;
@@ -69,34 +65,58 @@ public class Trajet {
 		}
 	}
 	
+	public int calculateTemps() {
+		this.temps = vehicule.calculateTempsDeplacement(distancePrincipale, distanceSecondaire, intersections.toArray(new Intersection[intersections.size()]));
+		return this.temps;
+	}
+	
 	public int calculateDistance() {
 		if (nbIntersections > 1) {
 			int distance = 0;
+			int distancePrincipale = 0;
+			int distanceSecondaire = 0;
 			for (int i = 0; i < nbIntersections - 1; i++) {
 				Intersection point1 = intersections.get(i);
 				Intersection point2 = intersections.get(i + 1);
 				directions direction = carte.findDirection(point1, point2);
+				orientations orientation = null; 
+				int segment = 0;
 				int distanceSegment = 0;
 				switch (direction) {
 				case nord:
-					distanceSegment = carte.getSegmentsVerticaux(point1.getY());
+					orientation = orientations.verticale;
+					segment = point1.getY();
+					distanceSegment = carte.getSegmentsVerticaux(segment);
 					break;
 				case est:
-					distanceSegment = carte.getSegmentsHorizontaux(point1.getX());
+					orientation = orientations.horizontale;
+					segment = point1.getX();
+					distanceSegment = carte.getSegmentsHorizontaux(segment);
 					break;
 				case sud:
-					distanceSegment = carte.getSegmentsVerticaux(point2.getY());
+					orientation = orientations.verticale;
+					segment = point2.getY();
+					distanceSegment = carte.getSegmentsVerticaux(segment);
 					break;
 				case ouest:
-					distanceSegment = carte.getSegmentsHorizontaux(point2.getX());
+					orientation = orientations.horizontale;
+					segment = point2.getX();
+					distanceSegment = carte.getSegmentsHorizontaux(segment);
 					break;
 				case undefined:
 					// Vraiment pas supposé...
 					break;
 				}
 				distance += distanceSegment;
+				if (carte.getTypeRoute(orientation, segment) == typesRoute.principale) {
+					distancePrincipale += distanceSegment;
+				} else if (carte.getTypeRoute(orientation, segment) == typesRoute.secondaire) {
+					distanceSecondaire += distanceSegment;
+				}
 			}
 			this.distance = distance;
+			this.distancePrincipale = distancePrincipale;
+			this.distanceSecondaire = distanceSecondaire;
 		} else {
 			this.distance = 0;
 		}
@@ -114,10 +134,6 @@ public class Trajet {
 		autres = (distance != -1 ? "Distance=" + distance + "m" : "");
 		s += "] " + (autres != "" ? "( " + autres + " ) " : "");
 		return s;
-	}
-
-	public void setVehicule(typeTransport vehicule) {
-		this.vehicule = vehicule;
 	}
 
 	public Intersection getDepart() {
@@ -153,7 +169,7 @@ public class Trajet {
 		return distance;
 	}
 
-	public typeTransport getVehicule() {
+	public ModeTransport getVehicule() {
 		return vehicule;
 	}
 
@@ -175,6 +191,14 @@ public class Trajet {
 
 	public int getDistanceArrivee() {
 		return distanceArrivee;
+	}
+
+	public int getDistancePrincipale() {
+		return distancePrincipale;
+	}
+
+	public int getDistanceSecondaire() {
+		return distanceSecondaire;
 	}
 
 	public void setDistanceArrivee(int distanceArrivee) {

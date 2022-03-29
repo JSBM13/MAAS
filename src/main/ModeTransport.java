@@ -18,7 +18,7 @@ public class ModeTransport {
 	private int arretIntersectionPrincPrinc;
 	private int arretIntersectionPrincSec;
 	private int arretIntersectionSecSec;
-	private typesIntersection debutTrajet;
+	//private typesIntersection debutTrajet;
 	private boolean[] routesPermises;
 	private int delaiEmbarquement;
 	private boolean transportHeureReguliere;
@@ -48,7 +48,7 @@ public class ModeTransport {
 		this.arretIntersectionPrincPrinc = arretIntersectionPrincPrinc;
 		this.arretIntersectionPrincSec = arretIntersectionPrincSec;
 		this.arretIntersectionSecSec = arretIntersectionSecSec;
-		this.debutTrajet = debutTrajet;
+		//this.debutTrajet = debutTrajet;
 		this.routesPermises = routesPermises;
 		this.delaiEmbarquement = delaiEmbarquement;
 		this.transportHeureReguliere = transportHeureReguliere;
@@ -57,32 +57,20 @@ public class ModeTransport {
 	}
 
 	/**
-	 * Calcule le temps nécessaire pour parcourir un trajet. Cette méthode ne prend en compte que la distance parcourue et le nombre d'arrêt, et ne prend pas en compte le temps de la journée.
+	 * Calcule le temps nécessaire pour parcourir un trajet. Cette méthode prends en compte la distance parcourue et le nombre d'arrêt.
 	 * @param distanceRoutePrincipale Distance parcourue sur une route principale, en mètres.
 	 * @param distanceRouteSecondaire Distance parcourue sur une route secondaire, en mètres.
 	 * @param intersections Array contenant la liste des intersections par lequel le véhicule a passé.
-	 * @return Le temps en secondes.
+	 * @return Le temps, en secondes.
 	 */
 	public int calculateTempsDeplacement(int distanceRoutePrincipale, int distanceRouteSecondaire, Intersection[] intersections) {
-		return calculateTempsDeplacement(distanceRoutePrincipale, distanceRouteSecondaire, intersections, false);
-	}
-	
-	/**
-	 * Calcule le temps nécessaire pour parcourir un trajet. Cette méthode ne prend en compte que la distance parcourue et le nombre d'arrêt, ainsi que le moment de la journée.
-	 * @param distanceRoutePrincipale Distance parcourue sur une route principale, en mètres.
-	 * @param distanceRouteSecondaire Distance parcourue sur une route secondaire, en mètres.
-	 * @param intersections Array contenant la liste des intersections par lequel le véhicule a passé.
-	 * @param heureDePointe Un boolean indiquant si la fonction doit considérer plutôt les valeurs de l'heure de pointe.
-	 * @return
-	 */
-	public int calculateTempsDeplacement(int distanceRoutePrincipale, int distanceRouteSecondaire, Intersection[] intersections, boolean heureDePointe) {
 		int t = 0;
 		t += Math.round(distanceRoutePrincipale * getVitesse(typesRoute.principale));
 		t += Math.round(distanceRouteSecondaire * getVitesse(typesRoute.secondaire));
 		for (Intersection intersection : intersections) {
 			t += getTempsIntersection(intersection.getType());
 		}
-		return t;
+		return delaiEmbarquement + t;
 	}
 	
 	public typeTransport getType() {
@@ -129,6 +117,28 @@ public class ModeTransport {
 		return routesPermises[route.ordinal()];
 	}
 	
+	
+	
+	public String getNom() {
+		return nom;
+	}
+
+	public int getDelaiEmbarquement() {
+		return delaiEmbarquement;
+	}
+
+	public boolean isTransportHeureReguliere() {
+		return transportHeureReguliere;
+	}
+
+	public boolean isTransportHeurePointe() {
+		return transportHeurePointe;
+	}
+
+	public boolean isTransportEnCommun() {
+		return transportEnCommun;
+	}
+
 	public void parseInput(String input) {
 		String[] data = input.split(",");
 		int[] values = new int[data.length];

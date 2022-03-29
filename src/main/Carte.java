@@ -59,13 +59,42 @@ public class Carte {
 		this.typeRoutesHorizontales = typeRoutesHorizontales;
 	}
 	
+	/**
+	 * Créée une carte à partir de quatres chaines de caractères, représentant respectivement les distances des routes verticales et horizontales et le type des routes verticales et horizontales.
+	 * Le format accepté pour les distances est "50,50,50", soit une liste d'entiers séparés par une virgule. Les distances son en mètres.
+	 * Le format accepté pour les types de routes est "PSPS", où P représente une route principale et S une route secondaire.
+	 */
+	public Carte(String inputDistancesVerticales, String inputDistancesHorizontales, String inputTypesVerticaux, String inputTypesHorizontaux) throws Exception, UnequalNumberOfRoadsException{
+		String[] distancesVerticales = inputDistancesVerticales.split(",");
+		String[] distancesHorizontales = inputDistancesHorizontales.split(",");
+		
+		// Si le nombre de données est correct...
+		if (distancesVerticales.length + 1 == inputTypesHorizontaux.length()) {
+			if (distancesHorizontales.length + 1 == inputTypesVerticaux.length()) {
+				
+				this.nbRoutesVerticales = inputTypesVerticaux.length();
+				this.nbRoutesHorizontales = inputTypesHorizontaux.length();
+				this.segmentsVerticaux = parseIntArray(distancesVerticales);
+				this.segmentsHorizontaux = parseIntArray(distancesHorizontales);
+				this.typeRoutesVerticales = parseTypesRoute(inputTypesVerticaux);
+				this.typeRoutesHorizontales = parseTypesRoute(inputTypesHorizontaux);
+				
+			} else {
+				throw new UnequalNumberOfRoadsException(orientations.verticale, "Le nombre de données présentes dans le tableau des distances horizontales et celui des types verticaux ne correspondent pas.");
+			}
+		} else {
+			throw new UnequalNumberOfRoadsException(orientations.horizontale, "Le nombre de données présentes dans le tableau des distances verticales et celui des types horizontaux ne correspondent pas.");
+		}
+		
+	}
+	
 	public Itineraire choisirTrajets(Intersection depart, Intersection arrivee, ModeTransport vehicule) throws Exception {
 		Itineraire itin = new Itineraire("Autobus", "autobus");
 		
 		Trajet[] choix = trouverCircuits(depart, arrivee, vehicule);
 		
 		// On sélectionne le trajet qui minimise la distance à marcher depuis et vers les arrêts.
-		// S'il y a une égalité, on prend celui qui a le trajet le plus court.
+		// S'il y a une égalité, on prend celui qui demande le moins de temps pour le voyage.
 		int minimumDistanceArrets = -1;
 		int minimumDistanceTrajet = -1;
 		int indexMeilleur = -1;
@@ -73,18 +102,18 @@ public class Carte {
 		for (int i = 0; i < choix.length; i++) {
 			int distanceDepart = choix[i].getDistanceDepart();
 			int distanceArrivee = choix[i].getDistanceArrivee();
-			int distanceTrajet = choix[i].getDistance();
-			System.out.println("Trajet %d: distanceDepart=%d, distanceArrivee=%d, distanceTrajet=%d; %s".formatted(
-					i, distanceDepart, distanceArrivee, distanceTrajet, choix[i]));
+			int tempsTrajet = choix[i].calculateTemps();
+			System.out.println("Trajet %d: distanceDepart=%d, distanceArrivee=%d, tempsTrajet=%d; %s".formatted(
+					i, distanceDepart, distanceArrivee, tempsTrajet, choix[i]));
 			
 			if (distanceDepart + distanceArrivee < minimumDistanceArrets || minimumDistanceArrets == -1) {
 				minimumDistanceArrets = distanceDepart + distanceArrivee;
-				minimumDistanceTrajet = distanceTrajet;
+				minimumDistanceTrajet = tempsTrajet;
 				indexMeilleur = i;
 				
-			} else if (distanceDepart + distanceArrivee == minimumDistanceArrets && distanceTrajet < minimumDistanceTrajet) {
+			} else if (distanceDepart + distanceArrivee == minimumDistanceArrets && tempsTrajet < minimumDistanceTrajet) {
 				minimumDistanceArrets = distanceDepart + distanceArrivee;
-				minimumDistanceTrajet = distanceTrajet;
+				minimumDistanceTrajet = tempsTrajet;
 				indexMeilleur = i;
 			}
 		}
@@ -117,7 +146,7 @@ public class Carte {
 		Trajet[] choix = new Trajet[circuits.length];
 		
 		for (int i = 0; i < circuits.length; i++) {
-			Trajet t = new Trajet(this, vehicule.getType() );
+			Trajet t = new Trajet(this, vehicule);
 			
 			Circuit circuit = circuits[i];
 			int distanceDepart = -1;
@@ -138,7 +167,7 @@ public class Carte {
 					pointArrivee = j;
 				}
 			}
-			//System.out.println("Pour circuit " + i + ": " + pointDepart + ", " + pointArrivee);
+			System.out.println("Pour circuit " + i + ": " + pointDepart + ", " + pointArrivee);
 			t.setIntersections(produireTrajetCircuit(i, pointDepart, pointArrivee).getIntersections());
 			t.makeReady();
 			t.setDistanceDepart(distanceDepart);
@@ -153,7 +182,7 @@ public class Carte {
 	public Trajet produireTrajetCircuit(int indexCircuit, int arretDepart, int arretArrivee) {
 		
 		Circuit circuit = circuits[indexCircuit];
-		Trajet t = new Trajet(this, circuit.vehicule.getType());
+		Trajet t = new Trajet(this, circuit.vehicule);
 		
 		try {
 			
@@ -163,10 +192,11 @@ public class Carte {
 			} else {
 				length = arretArrivee - arretDepart;
 			}
-			for (int i = arretDepart; i <= length + arretDepart; i++) {
+			for (int i = arretDepart; i < length + arretDepart; i++) {
 				Intersection point1 = circuit.getArret(i);
 				Intersection point2 = circuit.getArret(i + 1);
 				if (point1.delta(point2) == 1) {
+					if (t.getNbIntersections() == 0) t.addIntersection(point1);
 					t.addIntersection(point2);
 				} else {
 					Trajet segment = trouverTrajet(point1, point2, circuit.vehicule, t.getDirection());
@@ -202,7 +232,7 @@ public class Carte {
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
 		
-		Trajet t = new Trajet(this, vehicule.getType(), depart);
+		Trajet t = new Trajet(this, vehicule, depart);
 		
 		// S'il n'y a aucun déplacement à faire, on va simplement renvoyer un trajet avec un seul point.
 		if (deltaX == 0 && deltaY == 0) {
@@ -383,15 +413,36 @@ public class Carte {
 		return getTypeIntersection(intersection.getX(), intersection.getY());
 	}
 	
+
+	
 	/**
-	 * Prends quatres chaines de caractères, représentant respectivement les distances des routes verticales et horizontales et le type des routes verticales et horizontales, et
-	 * les utilises pour former les routes verticales et horizontales de la Carte.
-	 * Le format accepté pour les distances est "50,50,50", soit une liste d'entiers séparés par une virgule.
-	 * Le format accepté pour les types de routes est "PSPS", où P représente une route principale et S une route secondaire.
-	 * @param input
+	 * Fonction utilitaire pour parseRoutes(); permet de transformer un tableau de String représentant des entiers en un tableau d'entiers.
+	 * @param inputs Le tableau de chaînes de caractères à transformer
+	 * @return Le tableau d'entier correspondant.
 	 */
-	public void parseRoutes(String inputDistancesRoutesVerticales, String inputDistancesRoutesHorizontales, String inputTypesRoutesVerticales, String inputTypesRoutesHorizontales) {
-		
+	public int[] parseIntArray(String[] inputs) {
+		int[] values = new int[inputs.length];
+		for (int i = 0; i < inputs.length; i++) {
+			values[i] = Integer.parseInt(inputs[i]);
+		}
+		return values;
+	}
+	
+	/**
+	 * Fonction utilitaire pour parseRoutes(). Prend une chaine de caractères représentant des routes, sous la forme de caractères 'P' pour principales et 'S' pour secondaires, et renvoie
+	 * le tableau de types de route correspondant.
+	 * @param input La chaine de caractère représentant le types de routes
+	 * @return Le tableau de typesRoute correspondant.
+	 * @throws Exception Si une lettre invalide est insérée dans l'entrée.
+	 */
+	public typesRoute[] parseTypesRoute(String input) throws Exception {
+		typesRoute[] values = new typesRoute[input.length()];
+		for (int i = 0; i < input.length(); i++) {
+			if (input.charAt(i) == 'P') values[i] = typesRoute.principale;
+			else if (input.charAt(i) == 'S') values[i] = typesRoute.secondaire;
+			else throw new Exception("Entrée invalide, la lettre '" + input.charAt(i) + "' n'est pas un type de routes.");
+		}
+		return values;
 	}
 	
 	@SuppressWarnings("serial")

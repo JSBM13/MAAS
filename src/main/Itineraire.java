@@ -19,8 +19,8 @@ public class Itineraire {
 	
 	public Itineraire addTrajet(Trajet trajet) {
 		trajets.add(trajet);
-		if (!vehicules.contains(trajet.getVehicule())) {
-			vehicules.add(trajet.getVehicule());
+		if (!vehicules.contains(trajet.getVehicule().getType())) {
+			vehicules.add(trajet.getVehicule().getType());
 		}
 		return this;
 	}
