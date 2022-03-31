@@ -35,12 +35,12 @@ public class Handler {
 		ModeTransport vehicules[] = new ModeTransport[6];
 		String[] inputVehicules = new String[6];
 		inputVehicules = defaultParams.vehicules.split(";");
-		vehicules[0] = new ModeTransport("Véhicule", typeTransport.marche, true, true, false, inputVehicules[0]);
-		vehicules[1] = new ModeTransport("Véhicule", typeTransport.velo, true, true, false, inputVehicules[1]);
-		vehicules[2] = new ModeTransport("Véhicule", typeTransport.autobus, true, true, true, inputVehicules[2]);
-		vehicules[3] = new ModeTransport("Véhicule", typeTransport.metro, true, true, true, inputVehicules[3]);
-		vehicules[4] = new ModeTransport("Véhicule", typeTransport.voiture, true, false, false, inputVehicules[4]);
-		vehicules[5] = new ModeTransport("Véhicule", typeTransport.voiture, false, true, false, inputVehicules[5]);
+		vehicules[0] = new ModeTransport("Marche", typeTransport.marche, true, true, false, inputVehicules[0]);
+		vehicules[1] = new ModeTransport("Vélo", typeTransport.velo, true, true, false, inputVehicules[1]);
+		vehicules[2] = new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]);
+		vehicules[3] = new ModeTransport("Metro", typeTransport.metro, true, true, true, inputVehicules[3]);
+		vehicules[4] = new ModeTransport("Voiture", typeTransport.voiture, true, false, false, inputVehicules[4]);
+		vehicules[5] = new ModeTransport("Voiture", typeTransport.voiture, false, true, false, inputVehicules[5]);
 		Circuit[] circuits = Circuit.parseCircuits(defaultParams.circuitsAutobus, vehicules[2]);
 		
 		carte.setCircuits(circuits);
@@ -54,10 +54,28 @@ public class Handler {
 		while (true) {
 			System.out.println("Entrez un point de départ et d'arrivée, dans la forme suivante: ");
 			System.out.println("x1 y1 x2 y2");
-			System.out.println((carte.choisirTrajets(new Intersection(scanner.nextInt(), scanner.nextInt()), new Intersection(scanner.nextInt(), scanner.nextInt()), vehicules[0])));
+			int v1 = scanner.nextInt();
+			int v2 = scanner.nextInt();
+			int v3 = scanner.nextInt();
+			int v4 = scanner.nextInt();
+			Requete req = new Requete(carte, new Intersection(v1, v2), new Intersection(v3, v4), false);
+			req.calculateItineraires(vehicules);
+			System.out.println(req);
+			System.out.println();
 		}
 		
+		
+		
 
+	}
+	
+	static public String getTempsPourHumains(int temps) {
+		int heures = temps / 3600;
+		int minutes = (temps - (heures * 3600)) / 60;
+		int secondes = (temps - ((heures * 3600) + (minutes * 60)));
+		return (heures != 0 ? heures + "h" : "") + 
+				(minutes != 0 || heures != 0 ? (minutes < 10 ? "0" : "") + minutes + "m" : "") + 
+				(secondes != 0 ? (secondes < 10 ? "0" : "") + secondes + "s" : "");
 	}
 	
 	

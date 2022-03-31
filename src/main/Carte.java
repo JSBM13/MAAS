@@ -88,67 +88,23 @@ public class Carte {
 		
 	}
 	
-	public Itineraire choisirTrajets(Intersection depart, Intersection arrivee, ModeTransport vehicule) throws Exception {
-		Itineraire itin = new Itineraire("Autobus", "autobus");
-		
-		Trajet[] choix = trouverCircuits(depart, arrivee, vehicule);
-		
-		// On sélectionne le trajet qui minimise la distance à marcher depuis et vers les arrêts.
-		// S'il y a une égalité, on prend celui qui demande le moins de temps pour le voyage.
-		int minimumDistanceArrets = -1;
-		int minimumDistanceTrajet = -1;
-		int indexMeilleur = -1;
-		
-		for (int i = 0; i < choix.length; i++) {
-			int distanceDepart = choix[i].getDistanceDepart();
-			int distanceArrivee = choix[i].getDistanceArrivee();
-			int tempsTrajet = choix[i].calculateTemps();
-			System.out.println("Trajet %d: distanceDepart=%d, distanceArrivee=%d, tempsTrajet=%d; %s".formatted(
-					i, distanceDepart, distanceArrivee, tempsTrajet, choix[i]));
-			
-			if (distanceDepart + distanceArrivee < minimumDistanceArrets || minimumDistanceArrets == -1) {
-				minimumDistanceArrets = distanceDepart + distanceArrivee;
-				minimumDistanceTrajet = tempsTrajet;
-				indexMeilleur = i;
-				
-			} else if (distanceDepart + distanceArrivee == minimumDistanceArrets && tempsTrajet < minimumDistanceTrajet) {
-				minimumDistanceArrets = distanceDepart + distanceArrivee;
-				minimumDistanceTrajet = tempsTrajet;
-				indexMeilleur = i;
-			}
-		}
-		
-		// Ajout à l'itinéraire de la marche entre l'intersection actuelle et celle du premier arrêt, si besoin.
-		if (choix[indexMeilleur].getDistanceDepart() > 0) {
-			itin.addTrajet(trouverTrajet(depart, choix[indexMeilleur].getDepart(), vehicule, directions.undefined));
-		}
-		// Ajout du trajet en transport en commun
-		itin.addTrajet(choix[indexMeilleur]);
-		// AJout de la marche entre le dernier arrêt et la destination, si besoin.
-		if (choix[indexMeilleur].getDistanceArrivee() > 0) {
-			itin.addTrajet(trouverTrajet(choix[indexMeilleur].getDestination(), arrivee, vehicule, directions.undefined));
-		}
-		
-		itin.setNom("Autobus circuit " + indexMeilleur);
-		return itin;
-	}
-	
 	/**
 	 * Détermine, pour chaque circuit de la carte, le trajet optimal pour embarquer aussi près que possible d'un
 	 * point de départ et débarquer aussi près que possible d'un point d'arrivée.
 	 * @param depart L'intersection de départ.
 	 * @param arrivee L'intersection d'arrivée.
-	 * @param vehicule Le type de véhicule utilisé.
 	 * @return Un array de Trajets, un pour chaque circuits de la carte.
 	 */
-	public Trajet[] trouverCircuits(Intersection depart, Intersection arrivee, ModeTransport vehicule) {
+	public Trajet[] trouverCircuits(Intersection depart, Intersection arrivee) {
 		
 		Trajet[] choix = new Trajet[circuits.length];
 		
 		for (int i = 0; i < circuits.length; i++) {
-			Trajet t = new Trajet(this, vehicule);
-			
 			Circuit circuit = circuits[i];
+			
+			Trajet t = new Trajet(this, circuit.vehicule);
+			
+			
 			int distanceDepart = -1;
 			int pointDepart = -1;
 			int distanceArrivee = -1;
@@ -168,8 +124,7 @@ public class Carte {
 				}
 			}
 			System.out.println("Pour circuit " + i + ": " + pointDepart + ", " + pointArrivee);
-			t.setIntersections(produireTrajetCircuit(i, pointDepart, pointArrivee).getIntersections());
-			t.makeReady();
+			t.addIntersectionArrayList(produireTrajetCircuit(i, pointDepart, pointArrivee).getIntersections());;
 			t.setDistanceDepart(distanceDepart);
 			t.setDistanceArrivee(distanceArrivee);
 			choix[i] = t;
@@ -183,6 +138,11 @@ public class Carte {
 		
 		Circuit circuit = circuits[indexCircuit];
 		Trajet t = new Trajet(this, circuit.vehicule);
+		
+		if (arretDepart == arretArrivee) {
+			t.addIntersection(circuit.getArret(arretDepart));
+			return t;
+		}
 		
 		try {
 			
@@ -279,7 +239,6 @@ public class Carte {
 			}
 		}
 		if (loop >= 100) throw new Exception("Boucle infinie pour trouver trajet! Départ: " + depart + "; arrivée: " + arrivee);
-		t.makeReady();
 		t.setDirection(directionActuelle);
 		//System.out.println("Trajet trouvé entre " + depart + " et " + arrivee + ": " + t);
 		return t;
@@ -292,7 +251,7 @@ public class Carte {
 	 * @param arrivee Intersection finale
 	 * @return La direction dans laquelle on a voyagé.
 	 */
-	public directions findDirection(Intersection depart, Intersection arrivee) {
+	public directions trouverDirection(Intersection depart, Intersection arrivee) {
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
 		

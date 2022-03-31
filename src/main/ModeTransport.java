@@ -65,8 +65,8 @@ public class ModeTransport {
 	 */
 	public int calculateTempsDeplacement(int distanceRoutePrincipale, int distanceRouteSecondaire, Intersection[] intersections) {
 		int t = 0;
-		t += Math.round(distanceRoutePrincipale * getVitesse(typesRoute.principale));
-		t += Math.round(distanceRouteSecondaire * getVitesse(typesRoute.secondaire));
+		t += Math.round(distanceRoutePrincipale / getVitesse(typesRoute.principale));
+		t += Math.round(distanceRouteSecondaire / getVitesse(typesRoute.secondaire));
 		for (Intersection intersection : intersections) {
 			t += getTempsIntersection(intersection.getType());
 		}
@@ -146,12 +146,12 @@ public class ModeTransport {
 			values[i] = Integer.parseInt(data[i]);
 		}
 
-		this.vitesseRoutePrincipale = values[0];
-		this.vitesseRouteSecondaire = values[1];
-		this.arretIntersectionPrincPrinc = values[2];
-		this.arretIntersectionPrincSec = values[3];
-		this.arretIntersectionSecSec = values[4];
-		this.delaiEmbarquement = values[5];
+		this.vitesseRoutePrincipale = values[1];
+		this.vitesseRouteSecondaire = values[2];
+		this.arretIntersectionPrincPrinc = values[3];
+		this.arretIntersectionPrincSec = values[4];
+		this.arretIntersectionSecSec = values[5];
+		this.delaiEmbarquement = values[6];
 		//this.debutTrajet = values[];
 		//this.routesPermises = values[];
 	}

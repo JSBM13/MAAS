@@ -2,6 +2,7 @@ package main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import main.Carte.directions;
 import main.Carte.orientations;
@@ -20,6 +21,7 @@ public class Trajet {
 	private int distance;
 	private int distancePrincipale;
 	private int distanceSecondaire;
+	private int[] intersectionsParType; 
 	private ModeTransport vehicule;
 	private directions direction = directions.undefined;
 	
@@ -30,8 +32,19 @@ public class Trajet {
 		super();
 		this.carte = carte;
 		this.nbIntersections = intersections.length;
-		this.intersections = new ArrayList<>(Arrays.asList(intersections));
 		this.vehicule = vehicule;
+		this.intersectionsParType = new int[3];
+		this.intersections = new ArrayList<>();
+		addIntersectionArrayList(new ArrayList<Intersection>(Arrays.asList(intersections)));
+	}
+	
+	public void addIntersectionArrayList(List<Intersection> newIntersections) {
+		if (newIntersections.size() > 0) {
+			for (Intersection intersection : newIntersections) {
+				addIntersection(intersection);
+			}
+		}
+		
 	}
 	
 	public void addIntersection(Intersection intersection) {
@@ -40,6 +53,15 @@ public class Trajet {
 		}
 		intersections.add(intersection);
 		nbIntersections = intersections.size();
+		switch (intersection.getType()) {
+		case PrincPrinc: 	intersectionsParType[0]++; break;
+		case SecSec: 		intersectionsParType[1]++; break;
+		case PrincSec: 		intersectionsParType[2]++; break;
+		default:			// (rien)
+		}
+		calculateTemps();
+		calculateDistance();
+		findDirection();
 	}
 	
 	/**
@@ -51,12 +73,11 @@ public class Trajet {
 	public void combine(Trajet t) throws Exception {
 		if (t.nbIntersections >= 1) {
 			if (nbIntersections == 0) {
-				setIntersections(t.getIntersections());
+				addIntersectionArrayList(t.getIntersections());
 			} else {
 				if (getDestination().equals(t.getDepart())) {
-					intersections.addAll(t.getIntersections().subList(1, t.getNbIntersections()));
+					addIntersectionArrayList(t.getIntersections().subList(1, t.getNbIntersections()));
 					nbIntersections = intersections.size();
-					makeReady();
 				} else {
 					throw new Exception("Le Trajet à combiner (" + t + ") ne commence pas à la même intersection que ce Trajet (" + this + ") fini.");
 				}
@@ -78,7 +99,7 @@ public class Trajet {
 			for (int i = 0; i < nbIntersections - 1; i++) {
 				Intersection point1 = intersections.get(i);
 				Intersection point2 = intersections.get(i + 1);
-				directions direction = carte.findDirection(point1, point2);
+				directions direction = carte.trouverDirection(point1, point2);
 				orientations orientation = null; 
 				int segment = 0;
 				int distanceSegment = 0;
@@ -126,15 +147,18 @@ public class Trajet {
 	
 
 	public String toString() {
-		String s = "Trajet: [ ";
+		String s = "[" + vehicule.getNom() + ": ";
 		for (Intersection inters : intersections) {
 			s += inters.toString() + " ";
 		}
-		String autres = "";
-		autres = (distance != -1 ? "Distance=" + distance + "m" : "");
-		s += "] " + (autres != "" ? "( " + autres + " ) " : "");
-		return s;
+		s += "| ";
+		s += Handler.getTempsPourHumains(temps) + ", ";
+		s += distance + "m (" + distancePrincipale + "/" + distanceSecondaire + "), ";
+		s += nbIntersections + " inters. (" + intersectionsParType[0] + "/" + intersectionsParType[1] + "/" + intersectionsParType[2] + ") ";
+		
+		return s + "]";
 	}
+
 
 	public Intersection getDepart() {
 		return intersections.get(0);
@@ -146,11 +170,6 @@ public class Trajet {
 
 	public ArrayList<Intersection> getIntersections() {
 		return intersections;
-	}
-	
-	public void setIntersections(ArrayList<Intersection> intersections) {
-		this.intersections = intersections;
-		nbIntersections = intersections.size();
 	}
 
 	public int getTemps() {
@@ -208,7 +227,7 @@ public class Trajet {
 	public void findDirection() {
 		try {
 			if (nbIntersections > 1) {
-				this.direction = carte.findDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+				this.direction = carte.trouverDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
 			} else {
 				this.direction = directions.undefined;
 			}
@@ -219,12 +238,6 @@ public class Trajet {
 			this.direction = directions.undefined;
 		}
 		
-	}
-	
-	public void makeReady() {
-		findDirection();
-		calculateDistance();
-	}
-	 
+	}	 
 	 
 }

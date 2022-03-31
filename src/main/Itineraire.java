@@ -1,26 +1,31 @@
 package main;
 
 import java.util.ArrayList;
-import main.typeTransport;
 
 public class Itineraire {
-	public ArrayList<typeTransport> vehicules;
-	public ArrayList<Trajet> trajets;
-	public String nom;
-	public String typeTrajet;
+	private ArrayList<typeTransport> vehicules;
+	private ArrayList<Trajet> trajets;
+	private String nom;
+	private int temps;
+	private int distance;
 	
-	public Itineraire(String nom, String typeTrajet) {
+	public Itineraire(String nom) {
 		super();
 		this.nom = nom;
-		this.typeTrajet = typeTrajet;
 		this.trajets = new ArrayList<Trajet>();
 		this.vehicules = new ArrayList<typeTransport>();
+		this.temps = 0;
+		this.distance = 0;
 	}
 	
 	public Itineraire addTrajet(Trajet trajet) {
-		trajets.add(trajet);
-		if (!vehicules.contains(trajet.getVehicule().getType())) {
-			vehicules.add(trajet.getVehicule().getType());
+		if (trajet.getNbIntersections() > 1) {
+			trajets.add(trajet);
+			temps += trajet.calculateTemps();
+			distance += trajet.calculateDistance();
+			if (!vehicules.contains(trajet.getVehicule().getType())) {
+				vehicules.add(trajet.getVehicule().getType());
+			}
 		}
 		return this;
 	}
@@ -37,20 +42,25 @@ public class Itineraire {
 		return nom;
 	}
 
-	public String getTypeTrajet() {
-		return typeTrajet;
-	}
 	
 	public String toString() {
-		String s = "Itineraire " + nom + " (" + typeTrajet + "): { ";
+		String s = nom + " (" + Handler.getTempsPourHumains(temps) + ", " + distance + "m) " +": { \n";
 		for (Trajet trajet : trajets) {
-			s += trajet.toString();
+			s += "    " + trajet.toString() + "\n";
 		}
-		return s + "} ";
+		return s + " } ";
 	}
 
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	
+	public int getTemps() {
+		return temps;
+	}
+	
+	public int getDistance() {
+		return distance;
 	}
 	
 	
