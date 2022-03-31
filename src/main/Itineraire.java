@@ -1,22 +1,17 @@
+/*
+ * Classe qui représente une série de trajet utilisant un ou plusieurs moyens de transport pour se déplacer d'un point à un autre.
+ */
+
 package main;
 
 import java.util.ArrayList;
 
 public class Itineraire {
-	private ArrayList<typeTransport> vehicules;
-	private ArrayList<Trajet> trajets;
-	private String nom;
-	private int temps;
-	private int distance;
-	
-	public Itineraire(String nom) {
-		super();
-		this.nom = nom;
-		this.trajets = new ArrayList<Trajet>();
-		this.vehicules = new ArrayList<typeTransport>();
-		this.temps = 0;
-		this.distance = 0;
-	}
+	private ArrayList<typeTransport> vehicules;	// La liste des moyens de transports utilisés
+	private ArrayList<Trajet> trajets;			// La liste de trajets empruntés
+	private String nom;							// Le nom de cet Itinéraire, généralement le nom du moyen de transport principal.
+	private int temps;							// Temps, en secondes, nécessaire pour faire le déplacement.
+	private int distance;						// Distance, en mètres, parcourue dans cet itinéraire.
 	
 	public Itineraire addTrajet(Trajet trajet) {
 		if (trajet.getNbIntersections() > 1) {
@@ -33,7 +28,15 @@ public class Itineraire {
 	public ArrayList<typeTransport> getVehicules() {
 		return vehicules;
 	}
-
+	
+	public boolean isVehiculeUsed(typeTransport vehicule) {
+		return vehicules.contains(vehicule);
+	}
+	
+	public Trajet getTrajets(int index) {
+		return trajets.get(index);
+	}
+	
 	public ArrayList<Trajet> getTrajets() {
 		return trajets;
 	}
@@ -41,7 +44,6 @@ public class Itineraire {
 	public String getNom() {
 		return nom;
 	}
-
 	
 	public String toString() {
 		String s = nom + " (" + Handler.getTempsPourHumains(temps) + ", " + distance + "m) " +": { \n";
@@ -61,6 +63,19 @@ public class Itineraire {
 	
 	public int getDistance() {
 		return distance;
+	}
+	
+	/**
+	 * Constructeur. Ne prend comme paramètre que le nom.
+	 * @param nom Nom de l'intersection.
+	 */
+	public Itineraire(String nom) {
+		super();
+		this.nom = nom;
+		this.trajets = new ArrayList<Trajet>();
+		this.vehicules = new ArrayList<typeTransport>();
+		this.temps = 0;
+		this.distance = 0;
 	}
 	
 	

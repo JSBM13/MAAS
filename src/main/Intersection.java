@@ -1,34 +1,20 @@
+/**
+ * Classe utilitaire qui représente une intersection donnée dans la carte.
+ * 
+ */
+
 package main;
 
-import main.Carte.directions;
 
 enum typesIntersection {
 	PrincPrinc, PrincSec, SecSec, undefined;
 }
 
 public class Intersection {
-	private typesIntersection type;
-	private int x;
-	private int y;
 	
-	public Intersection(int x, int y, typesIntersection type) {
-		this.type = type;
-		this.x = x;
-		this.y = y;
-	}
-	
-	public Intersection(int x, int y) {
-		this.x = x;
-		this.y = y;
-		this.type = typesIntersection.undefined;
-	}
-	
-	public Intersection(String input) {
-		String s = input.replace("(", "").replace(")", "").replace(" ", "");
-		x = Integer.parseInt(s.substring(0,s.indexOf(',')));
-		y = Integer.parseInt(s.substring(s.indexOf(',') + 1));
-	}
-	
+	private typesIntersection type;	// Le type d'intersection.
+	private int x;					// L'index de la rue verticale de l'intersection.
+	private int y;					// L'index de la rue horizontale de l'intersection.
 	
 	/**
 	 * Bouge l'intersection actuelle par une certaine distance dans la direction spécifiée.
@@ -56,7 +42,10 @@ public class Intersection {
 		return this.clone().move(direction,  distance);
 	}
 	
-
+	/**
+	 * Détermine le nombre de segments qui sépare cette intersection de celle indiquée.
+	 * @param intersection Une certaine intersection à comparer.
+	 */
 	public int delta(Intersection intersection) {
 		return Math.abs(intersection.getX() - x) + Math.abs(intersection.getY() - y);
 	}
@@ -64,6 +53,23 @@ public class Intersection {
 	public Intersection clone() {
 		return new Intersection(x, y, type);
 	}
+	
+	public String toString( ) {
+		return "(" + x + "," + y +")";
+	}
+	
+	/**
+	 * Retourne vrai si les coordonnées x et y sont identiques. Ne prend pas en compte le type d'Intersection (donc ce n'est pas
+	 * un problème si le type est à undefined).
+	 */
+	public boolean equals(Object obj) {
+		if (obj instanceof Intersection) {
+			Intersection intersection = (Intersection) obj;
+			if (intersection.x == x && intersection.y == y) return true;
+		}
+		return false;
+	}
+	
 	
 	public int getX() {
 		return x;
@@ -81,16 +87,36 @@ public class Intersection {
 		this.type = type;
 	}
 	
-	public String toString( ) {
-		return "(" + x + "," + y +")";
+
+	
+	
+	/**
+	 * Constructeur d'Intersection où le type est directement fourni.
+	 * 
+	 */
+	public Intersection(int x, int y, typesIntersection type) {
+		this.type = type;
+		this.x = x;
+		this.y = y;
 	}
 	
-	public boolean equals(Object obj) {
-		if (obj instanceof Intersection) {
-			Intersection intersection = (Intersection) obj;
-			if (intersection.x == x && intersection.y == y) return true;
-		}
-		return false;
+	/**
+	 * Constructeur d'Intersection sans le type. Préférable quand l'on est pas certain si une intersection existe vraiment.
+	 */
+	public Intersection(int x, int y) {
+		this.x = x;
+		this.y = y;
+		this.type = typesIntersection.undefined;
+	}
+	
+	/**
+	 * Constructeur d'Intersection où l'on fournit uniquement un String du format (x,y). Ne spécifie pas le type de l'intersection
+	 * (il devra donc être setté plus tard, si besoin est.)
+	 */
+	public Intersection(String input) {
+		String s = input.replace("(", "").replace(")", "").replace(" ", "");
+		x = Integer.parseInt(s.substring(0,s.indexOf(',')));
+		y = Integer.parseInt(s.substring(s.indexOf(',') + 1));
 	}
 	
 	/**
@@ -109,4 +135,6 @@ public class Intersection {
 		}
 		return tableau;
 	}
+	
+	
 }

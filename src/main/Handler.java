@@ -2,11 +2,10 @@ package main;
 
 import java.util.Arrays;
 import java.util.Scanner;
-import main.Carte.typesRoute;
 
 public class Handler {
 
-	final static Parametres defaultParams = new Parametres("400,300,400,300",
+	final static Parametres defaultParams6x5 = new Parametres("400,300,400,300",
 			"400,300,400,300,400",
 			"PSPSPS",
 			"SPSSP",
@@ -15,6 +14,20 @@ public class Handler {
 			"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
 			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
 			);
+	
+	final static Parametres defaultParams20x20= new Parametres("100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
+					"100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
+					"PSSSPSSSSPSSSSPSSPSP",
+					"PSPSSSSPSSSSPSSSPSSP",
+					"Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0",
+					"(0,1);(0,4);(5,4)",
+					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)",
+					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
+					);
+			
+	final static Parametres defaultParams = defaultParams20x20;
+			
+			
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -64,9 +77,24 @@ public class Handler {
 			System.out.println();
 		}
 		
-		
-		
+		//generateAllRequetes(carte, vehicules);
 
+	}
+	
+	static void generateAllRequetes(Carte carte, ModeTransport[] vehicules) throws Exception {
+		for (int v1 = 0; v1 < carte.getNbRoutesVerticales(); v1++) {
+			for (int v2 = 0; v2 < carte.getNbRoutesHorizontales(); v2++) {
+				for (int v3 = 0; v3 < carte.getNbRoutesVerticales(); v3++) {
+					for (int v4 = 0; v4 < carte.getNbRoutesHorizontales(); v4++) {
+						Requete req = new Requete(carte, new Intersection(v1, v2), new Intersection(v3, v4), false);
+						req.calculateItineraires(vehicules);
+						System.out.println(req);
+						System.out.println();
+					}
+				}
+			}
+		}
+		
 	}
 	
 	static public String getTempsPourHumains(int temps) {

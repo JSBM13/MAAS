@@ -4,11 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import main.Carte.directions;
-import main.Carte.orientations;
-import main.Carte.typesRoute;
-import main.Intersection;
-
 public class Trajet {
 	
 	private Carte carte;

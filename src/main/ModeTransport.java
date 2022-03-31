@@ -1,7 +1,10 @@
-package main;
+/* 
+ * Classe représentant un moyen de transport pour l'application. Permet de calculer le temps nécessaire pour un déplacement, stocker
+ * les paramètres d'un certain mode de transport et vérifier si le véhicule est utilisé pour un certain moment de la journée.
+ *  
+ */
 
-import main.typesIntersection;
-import main.Carte.typesRoute;
+package main;
 
 enum typeTransport {
 	marche, velo, voiture, autobus, metro, undefined
@@ -9,52 +12,25 @@ enum typeTransport {
 
 public class ModeTransport {
 	
-	
-	private String nom;
-	private typeTransport type;
+	private String nom;							// Nom du mode de transport
+	private typeTransport type;					// Le type de véhicule utilisé
 
-	private int vitesseRoutePrincipale;
-	private int vitesseRouteSecondaire;
-	private int arretIntersectionPrincPrinc;
-	private int arretIntersectionPrincSec;
-	private int arretIntersectionSecSec;
-	//private typesIntersection debutTrajet;
-	private boolean[] routesPermises;
-	private int delaiEmbarquement;
-	private boolean transportHeureReguliere;
-	private boolean transportHeurePointe;
-	private boolean transportEnCommun;
+	private int vitesseRoutePrincipale;			// Vitesse du véhicule sur les routes principales, en m/s
+	private int vitesseRouteSecondaire;			// Vitesse du véhicule sur les routes secondaires, en m/s
+	
+	private int arretIntersectionPrincPrinc;	// Temps d'arrêt en seconde aux intersections principales-principales
+	private int arretIntersectionPrincSec;		// Temps d'arrêt en seconde aux intersections principales-secondaires
+	private int arretIntersectionSecSec;		// Temps d'arrêt aux intersections secondaires-secondaires.
+	
+	//private boolean[] routesPermises;			// Détermine si le véhicule peut aller sur un certain type de routes. Pas utilisé.
+	private int delaiEmbarquement;				// Détermine le temps d'attente avant d'embarquer dans le moyen de transport. Utiliser 0 si aucun.
+	
+	private boolean transportHeureReguliere;	// Indique que le mode de transport peut être utilisé pour les déplacements en dehors des heures de pointe.
+	private boolean transportHeurePointe;		// Indique que le mode de transport peut être utilisé pour les déplacement lors des heures de pointe.
+	private boolean transportEnCommun;			// Indique que le mode de transport est du transport en commun (donc utilise des circuits).
 	
 	
-	public ModeTransport(String nom, typeTransport type, boolean transportHeureReguliere, boolean transportHeurePointe, boolean transportEnCommun, String input) {
-		super();
-		this.nom = nom;
-		this.type = type;
-		this.transportHeureReguliere = transportHeureReguliere;
-		this.transportHeurePointe = transportHeurePointe;
-		this.transportEnCommun = transportEnCommun;
-		parseInput(input);	
-	}
-	
-	public ModeTransport(String nom, typeTransport type, int vitesseRoutePrincipale, int vitesseRouteSecondaire,
-			int arretIntersectionPrincPrinc, int arretIntersectionPrincSec, int arretIntersectionSecSec,
-			typesIntersection debutTrajet, boolean[] routesPermises, int delaiEmbarquement, boolean transportHeureReguliere, boolean transportHeurePointe,
-			boolean transportEnCommun) {
-		super();
-		this.nom = nom;
-		this.type = type;
-		this.vitesseRoutePrincipale = vitesseRoutePrincipale;
-		this.vitesseRouteSecondaire = vitesseRouteSecondaire;
-		this.arretIntersectionPrincPrinc = arretIntersectionPrincPrinc;
-		this.arretIntersectionPrincSec = arretIntersectionPrincSec;
-		this.arretIntersectionSecSec = arretIntersectionSecSec;
-		//this.debutTrajet = debutTrajet;
-		this.routesPermises = routesPermises;
-		this.delaiEmbarquement = delaiEmbarquement;
-		this.transportHeureReguliere = transportHeureReguliere;
-		this.transportHeurePointe = transportHeurePointe;
-		this.transportEnCommun = transportEnCommun;
-	}
+
 
 	/**
 	 * Calcule le temps nécessaire pour parcourir un trajet. Cette méthode prends en compte la distance parcourue et le nombre d'arrêt.
@@ -112,11 +88,14 @@ public class ModeTransport {
 		}
 	}
 	
-	
-	public boolean peutAllerSurRoute(typesRoute route) {
+	/**
+	 * Inutilisé, détermine si le véhicule peut prendre une route d'un certain type.
+	 * @param route
+	 * @return
+	 */
+	/*public boolean peutAllerSurRoute(typesRoute route) {
 		return routesPermises[route.ordinal()];
-	}
-	
+	}*/
 	
 	
 	public String getNom() {
@@ -138,7 +117,11 @@ public class ModeTransport {
 	public boolean isTransportEnCommun() {
 		return transportEnCommun;
 	}
-
+	
+	/**
+	 * Prend la liste de variables du véhicule et l'applique à ce mode de transport.
+	 * @param input String représentant les variables du véhicule. Voir le constructeur pour le format.
+	 */
 	public void parseInput(String input) {
 		String[] data = input.split(",");
 		int[] values = new int[data.length];
@@ -154,6 +137,50 @@ public class ModeTransport {
 		this.delaiEmbarquement = values[6];
 		//this.debutTrajet = values[];
 		//this.routesPermises = values[];
+	}
+	
+	/**
+	 * Constructeur utilisant une chaine de caractères pour les paramètres.
+	 * Le format est "[inutilisé], vitesseRoutePrincipale, vitesseRouteSecondaire, tempsArretIntersectionPrincPrinc, tempsArretIntersectionPrincSec,
+	 * 					tempsArretIntersectionSecSec, tempsAttenteAvantEmbarquement".
+	 * @param nom Nom du moyen de transport
+	 * @param type Type de véhicule
+	 * @param transportHeureReguliere Vrai si le véhicule est utilisé en période régulière
+	 * @param transportHeurePointe Vrai si le véhicule est utilisé en heure de pointe
+	 * @param transportEnCommun Vrai si le véhicule est du transport en commun
+	 * @param input La chaine de caractère représentant les variables
+	 */
+	public ModeTransport(String nom, typeTransport type, boolean transportHeureReguliere, boolean transportHeurePointe, boolean transportEnCommun, String input) {
+		super();
+		this.nom = nom;
+		this.type = type;
+		this.transportHeureReguliere = transportHeureReguliere;
+		this.transportHeurePointe = transportHeurePointe;
+		this.transportEnCommun = transportEnCommun;
+		parseInput(input);	
+	}
+	
+	/**
+	 * Constructeur direct, sans parsing de String.
+	 */
+	public ModeTransport(String nom, typeTransport type, int vitesseRoutePrincipale, int vitesseRouteSecondaire,
+			int arretIntersectionPrincPrinc, int arretIntersectionPrincSec, int arretIntersectionSecSec,
+			/*typesIntersection debutTrajet,*/ /*boolean[] routesPermises,*/ int delaiEmbarquement, boolean transportHeureReguliere, boolean transportHeurePointe,
+			boolean transportEnCommun) {
+		super();
+		this.nom = nom;
+		this.type = type;
+		this.vitesseRoutePrincipale = vitesseRoutePrincipale;
+		this.vitesseRouteSecondaire = vitesseRouteSecondaire;
+		this.arretIntersectionPrincPrinc = arretIntersectionPrincPrinc;
+		this.arretIntersectionPrincSec = arretIntersectionPrincSec;
+		this.arretIntersectionSecSec = arretIntersectionSecSec;
+		//this.debutTrajet = debutTrajet;
+		//this.routesPermises = routesPermises;
+		this.delaiEmbarquement = delaiEmbarquement;
+		this.transportHeureReguliere = transportHeureReguliere;
+		this.transportHeurePointe = transportHeurePointe;
+		this.transportEnCommun = transportEnCommun;
 	}
 	
 }

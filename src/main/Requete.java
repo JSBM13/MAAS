@@ -1,8 +1,12 @@
+/*
+ * Représente une requête pour se rendre d'un point A à un point B, stockant plusieurs itinéraires possibles.
+ * Cette classe possède également diverses fonctions pour obtenir les itinéraires, choisir les meilleurs et fournir des recommendations.
+ * 
+ */
+
 package main;
 
 import java.util.ArrayList;
-
-import main.Carte.directions;
 
 public class Requete {
 	private Carte carte;

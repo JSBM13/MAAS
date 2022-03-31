@@ -39,21 +39,6 @@ public class ParamMAAS extends JDialog {
 	private JTable tableMetro;
 
 	private Parametres resultat;
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ParamMAAS frame = new ParamMAAS();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 	
 	public void cancel() {
 		dispose();
@@ -82,11 +67,14 @@ public class ParamMAAS extends JDialog {
 	
 	public String extractRouteDistanceData(JTable table) {
 		TableModel model = table.getModel();
-		String[] routes = new String[table.getRowCount()];
-		for (int i = 0; i < model.getRowCount(); i++) {
-			routes[i] = model.getValueAt(i, 2).toString();
+		if (table.getRowCount() > 1) {
+			String[] routes = new String[table.getRowCount() - 1];
+			for (int i = 1; i < model.getRowCount(); i++) {
+				routes[i - 1] = model.getValueAt(i, 2).toString();
+			}
+			return String.join(",", routes);
 		}
-		return String.join(",", routes);
+		return "";
 	}
 	
 	public String extractRouteTypeData(JTable table) {
@@ -105,10 +93,6 @@ public class ParamMAAS extends JDialog {
 	}
 	
 	public void deleteRow(JTable table) {
-		System.out.println(table.getSelectedRowCount());
-		System.out.println(table.getSelectedRow());
-		System.out.println(Arrays.toString(table.getSelectedRows()));
-		System.out.println(table.isFocusOwner());
 		if (table.getSelectedRowCount() > 0) {
 			DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 			tableModel.removeRow(table.getSelectedRow());
