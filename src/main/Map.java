@@ -7,8 +7,6 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
-import main.Carte.orientations;
-import main.Carte.typesRoute;
 
 @SuppressWarnings("serial")
 public class Map extends JPanel {
