@@ -1,32 +1,22 @@
 package main;
 
-import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTabbedPane;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.awt.event.ActionEvent;
-import javax.swing.JList;
-import java.awt.Color;
 import javax.swing.border.LineBorder;
 import javax.swing.JTable;
-import javax.swing.ListModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
-import javax.swing.JOptionPane;
-import javax.swing.AbstractListModel;
-import javax.swing.DefaultListModel;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.Dialog.ModalityType;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Color;
+
 
 public class ParamMAAS extends JDialog {
 
@@ -40,10 +30,16 @@ public class ParamMAAS extends JDialog {
 
 	private Parametres resultat;
 	
+	/**
+	 * Quand on annule, simplement fermer la fenêtre sans rien renvoyer.
+	 */
 	public void cancel() {
 		dispose();
 	}
 	
+	/**
+	 * Quand on clique sur okay, on récupère les données entrées par l'utilisateur et on le renvoie comme objet Paramètres.
+	 */
 	public void ok() {
 		String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesVerticales);
 		String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesHorizontales);
@@ -58,13 +54,22 @@ public class ParamMAAS extends JDialog {
 		dispose();
 	}
 	
-
+	/**
+	 * Permet d'afficher la fenêtre et de renvoyer les informations entrées si l'utilisateur clique sur Okay.
+	 * @param initial Les paramètres initiaux à utiliser pour remplir les formulaires.
+	 * @return Les paramètres entrés par l'utilisateur s'il clique sur okay, ou null s'il annule.
+	 */
 	public Parametres showDialog(Parametres initial) {
 		populate(initial);
 		setVisible(true);
 		return resultat;
 	}
 	
+	/**
+	 * Récupère les données entrées de distance dans un des formulaires de routes.
+	 * @param table La table contenant les données à récupérer.
+	 * @return Les paramètres sous forme de String parsable par Carte.
+	 */
 	public String extractRouteDistanceData(JTable table) {
 		TableModel model = table.getModel();
 		if (table.getRowCount() > 1) {
@@ -77,6 +82,11 @@ public class ParamMAAS extends JDialog {
 		return "";
 	}
 	
+	/**
+	 * Récupère les données de type de routes entrées dans un formulaire de route.
+	 * @param table La table contenant les données à récupérer.
+	 * @return Les paramètres de types de route, sous la forme d'un String parsable par Carte.
+	 */
 	public String extractRouteTypeData(JTable table) {
 		TableModel model = table.getModel();
 		String routes = "";
@@ -86,12 +96,21 @@ public class ParamMAAS extends JDialog {
 		return routes;
 	}
 	
+	/**
+	 * Ajoute une ligne à la table donnée, contenant les données fournies.
+	 * @param table La table qu'on souhaite ajouter une ligne.
+	 * @param obj L'objet contenant les données à ajouter.
+	 */
 	public void addRow(JTable table, Object[] obj) {
 		DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 		tableModel.addRow(obj);
 		table.setModel(tableModel);
 	}
 	
+	/**
+	 * Retire la ligne sélectionnée par l'utilisateur.
+	 * @param table La table que l'on souhaite retirer une ligne.
+	 */
 	public void deleteRow(JTable table) {
 		if (table.getSelectedRowCount() > 0) {
 			DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
@@ -103,6 +122,10 @@ public class ParamMAAS extends JDialog {
 		}
 	}
 	
+	/**
+	 * Remplis la fenêtre avec des paramètres données.
+	 * @param initial L'objet Paramètres contenant les données à insérer.
+	 */
 	public void populate(Parametres initial) {
 		Parametres paramInitiaux = initial;
 		if (initial == null) {
@@ -121,10 +144,16 @@ public class ParamMAAS extends JDialog {
 		populateRoutes(tableRoutesHorizontales, paramInitiaux.distanceRoutesHorizontales, paramInitiaux.typesRoutesHorizontales);
 		populateVehicules(paramInitiaux.vehicules);
 		populatePoints(paramInitiaux.points);
-		populateCircuits(paramInitiaux.circuitsAutobus, tableAutobus);
-		populateCircuits(paramInitiaux.circuitsMetro, tableMetro);
+		populateCircuits(tableAutobus, paramInitiaux.circuitsAutobus);
+		populateCircuits(tableMetro, paramInitiaux.circuitsMetro);
 	}
 	
+	/**
+	 * Permet de remplir une table de routes avec les données fournies.
+	 * @param table La table à remplir
+	 * @param paramsDistance Les paramètres de distances, sous la forme de String parsable par Carte.
+	 * @param paramsType Les paramètres de routes, sous la forme de String parsable par Carte.
+	 */
 	public void populateRoutes(JTable table, String paramsDistance, String paramsType) {
 		Route[] routes = parseRoutes(paramsDistance, paramsType);
 		DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
@@ -135,6 +164,12 @@ public class ParamMAAS extends JDialog {
 		table.setModel(tableModel);
 	}
 	
+	/**
+	 * Prend des paramètres de type et de distances de routes et retourne les données contenues sous forme d'array d'objets Route.
+	 * @param paramsDistance Les données de distance, sous forme de String parsable par Carte.
+	 * @param paramType Les données de types d eroutes, sous forme de String parsable par Carte.
+	 * @return Le tableau de routes associés.
+	 */
 	public Route[] parseRoutes(String paramsDistance, String paramType) {
 		String[] distances = paramsDistance.split(",");
 		Route[] output = new Route[paramType.length()];
@@ -148,6 +183,10 @@ public class ParamMAAS extends JDialog {
 		return output;
 	}
 	
+	/**
+	 * Remplie le tableau des véhicules avec les paramètres fournis.
+	 * @param params Un String contenant les données, dans le même format que prend Carte.
+	 */
 	public void populateVehicules(String params) {
 		TableModel table = tableVehicules.getModel();
 		String[] vehicules = params.split(";");
@@ -161,6 +200,10 @@ public class ParamMAAS extends JDialog {
 		tableVehicules.setModel(table);
 	}
 	
+	/**
+	 * Récupère les données entrées dans le tableau des véhicules.
+	 * @return Les paramètres de véhicules.
+	 */
 	public String extractVehiculesData() {
 		TableModel model = tableVehicules.getModel();
 		String[] vehicules = new String[model.getRowCount()];
@@ -175,6 +218,10 @@ public class ParamMAAS extends JDialog {
 		return String.join(";", vehicules);
 	}
 	
+	/**
+	 * Remplis le formulaire des points avec la liste de points fournis.
+	 * @param params La liste de points à utiliser.
+	 */
 	public void populatePoints(String params) {
 		DefaultTableModel table = (DefaultTableModel)tablePoints.getModel();
 		String[] points = params.replace("(", "").replace(")", "").split(";");
@@ -185,6 +232,10 @@ public class ParamMAAS extends JDialog {
 		tablePoints.setModel(table);
 	}
 	
+	/**
+	 * Récupère la liste des points entrés dans le formulaire.
+	 * @return La liste de points, sous forme d'un String qui peut être parser par Intersection.parseIntersections().
+	 */
 	public String extractPointData() {
 		TableModel model = tablePoints.getModel();
 		String[] points = new String[model.getRowCount()];
@@ -194,7 +245,12 @@ public class ParamMAAS extends JDialog {
 		return String.join(";", points);
 	}
 	
-	public void populateCircuits(String params, JTable table) {
+	/**
+	 * Remplis le formulaire de circuits fournis avec les paramètres donnés.
+	 * @param params La liste de circuits à insérer dans le tableau.
+	 * @param table La table à remplir.
+	 */
+	public void populateCircuits(JTable table, String params) {
 		DefaultTableModel model = (DefaultTableModel)table.getModel();
 		String[] circuits = params.split(";");
 		for (int i = 0; i < circuits.length; i++) {
@@ -203,6 +259,11 @@ public class ParamMAAS extends JDialog {
 		table.setModel(model);
 	}
 	
+	/**
+	 * Récupère les données de circuits entrés par l'utilisateur.
+	 * @param table Le tableau à récupérer.
+	 * @return Les données de circuits, sous forme d'un String parsable par Circuit.
+	 */
 	public String extractCircuitsData(JTable table) {
 		TableModel model = table.getModel();
 		String[] circuits = new String[model.getRowCount()];
@@ -213,11 +274,11 @@ public class ParamMAAS extends JDialog {
 	}
 
 	/**
-	 * Create the frame.
+	 * Le code pour faire la fenêtre. Pas grands choses d'interressant ici.
 	 */
 	@SuppressWarnings("serial")
 	public ParamMAAS() {
-		setModalityType(ModalityType.DOCUMENT_MODAL);
+		setModalityType(ModalityType.APPLICATION_MODAL);
 		
 		resultat = null;
 		

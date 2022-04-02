@@ -1,3 +1,8 @@
+/**
+ * Représente un ensemble de paramètres, sous forme de String, à utiliser par l'application.
+ * 
+ */
+
 package main;
 
 

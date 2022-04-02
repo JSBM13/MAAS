@@ -1,3 +1,8 @@
+/*
+ * Déplacement d'un point à un autre, avec différentes informations sur le temps et la distance nécessaire.
+ * 
+ */
+
 package main;
 
 import java.util.ArrayList;
@@ -8,84 +13,34 @@ public class Trajet {
 	
 	private Carte carte;
 
+	private ArrayList<Intersection> intersections;	// Liste des intersections par lesquels le déplacement passe.
+	private int nbIntersections;					// Nombre d'intersections
 	 
-	private ArrayList<Intersection> intersections;
-	private int nbIntersections;
-	 
-	private int temps;
-	private int distance;
-	private int distancePrincipale;
-	private int distanceSecondaire;
-	private int[] intersectionsParType; 
-	private ModeTransport vehicule;
-	private directions direction = directions.undefined;
+	private int temps;								// Temps nécessaire, en secondes.
+	private int distance;							// Distance parcourue, en mètres.
+	private int distancePrincipale;					// Distance parcourue sur des routes principales.
+	private int distanceSecondaire;					// Distance parcourue sur des routes secondaires.
+	private int[] intersectionsParType; 			// Tableau d'entiers représentant le nombre d'intersections croisées de chaque type.
+	private ModeTransport vehicule;					// Le véhicule dans lequel ce trajet est parcouru.
+	private directions direction = directions.undefined;	// Direction vers laquelle on fait face à la fin du parcours.
 	
-	private int distanceDepart = -1;
-	private int distanceArrivee = -1;
-	
-	public Trajet(Carte carte, ModeTransport vehicule, Intersection ... intersections) {
-		super();
-		this.carte = carte;
-		this.nbIntersections = intersections.length;
-		this.vehicule = vehicule;
-		this.intersectionsParType = new int[3];
-		this.intersections = new ArrayList<>();
-		addIntersectionArrayList(new ArrayList<Intersection>(Arrays.asList(intersections)));
-	}
-	
-	public void addIntersectionArrayList(List<Intersection> newIntersections) {
-		if (newIntersections.size() > 0) {
-			for (Intersection intersection : newIntersections) {
-				addIntersection(intersection);
-			}
-		}
-		
-	}
-	
-	public void addIntersection(Intersection intersection) {
-		if (intersection.getType() == typesIntersection.undefined) {
-			intersection.setType(carte.getTypeIntersection(intersection.getX(), intersection.getY()));
-		}
-		intersections.add(intersection);
-		nbIntersections = intersections.size();
-		switch (intersection.getType()) {
-		case PrincPrinc: 	intersectionsParType[0]++; break;
-		case SecSec: 		intersectionsParType[1]++; break;
-		case PrincSec: 		intersectionsParType[2]++; break;
-		default:			// (rien)
-		}
-		calculateTemps();
-		calculateDistance();
-		findDirection();
-	}
+	private int distanceDepart = -1;				// Si c'est un trajet de transport à commun, distance, en segments, entre le début du trajet
+													// et le point de départ de la requête.
+	private int distanceArrivee = -1;				// Distance en segments entre la fin du trajet et le point de destination de la requête.
 	
 	/**
-	 * Prend les points d'un second objet Trajet et les ajoute à la fin de la liste de cet objet.
-	 * Cette fonction nécessite que ce trajet fini au même endroit que le second Trajet commence.
-	 * @param t
-	 * @throws Exception Si le trajet à combiner ne commence pas à la même intersection que ce trajet fini.
+	 * Détermine le temps nécessaire pour parcourir le trajet. Retourne ce temps en seconde, et l'enregistre dans la variable temps.
+	 * @return Le temps en secondes.
 	 */
-	public void combine(Trajet t) throws Exception {
-		if (t.nbIntersections >= 1) {
-			if (nbIntersections == 0) {
-				addIntersectionArrayList(t.getIntersections());
-			} else {
-				if (getDestination().equals(t.getDepart())) {
-					addIntersectionArrayList(t.getIntersections().subList(1, t.getNbIntersections()));
-					nbIntersections = intersections.size();
-				} else {
-					throw new Exception("Le Trajet à combiner (" + t + ") ne commence pas à la même intersection que ce Trajet (" + this + ") fini.");
-				}
-				
-			}
-		}
-	}
-	
 	public int calculateTemps() {
 		this.temps = vehicule.calculateTempsDeplacement(distancePrincipale, distanceSecondaire, intersections.toArray(new Intersection[intersections.size()]));
 		return this.temps;
 	}
 	
+	/**
+	 * Détermine la distance du circuit en mètre. Cette fonction mets à jour le champs distance de cet objet et retourne cette valeur.
+	 * @return La distance, en mètres.
+	 */
 	public int calculateDistance() {
 		if (nbIntersections > 1) {
 			int distance = 0;
@@ -140,7 +95,81 @@ public class Trajet {
 		return this.distance;
 	}
 	
-
+	/**
+	 * Détermine la direction vers laquelle l'on fait face à la fin du trajet et la stocke dans la variable direction.
+	 */
+	public void findDirection() {
+		try {
+			if (nbIntersections > 1) {
+				this.direction = carte.trouverDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
+			} else {
+				this.direction = directions.undefined;
+			}
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.direction = directions.undefined;
+		}
+		
+	}	 
+	
+	/**
+	 * Ajoute un array d'intersections à la liste d'intersections de ce trajet.
+	 * @param newIntersections Array d'intersections à ajouter.
+	 */
+	public void addIntersectionArrayList(List<Intersection> newIntersections) {
+		if (newIntersections.size() > 0) {
+			for (Intersection intersection : newIntersections) {
+				addIntersection(intersection);
+			}
+		}
+		
+	}
+	
+	/**
+	 * Ajoute une intersection à la fin de la liste d'intersections du trajet.
+	 * @param intersection Intersection à ajouter.
+	 */
+	public void addIntersection(Intersection intersection) {
+		if (intersection.getType() == typesIntersection.undefined) {
+			intersection.setType(carte.getTypeIntersection(intersection.getX(), intersection.getY()));
+		}
+		intersections.add(intersection);
+		nbIntersections = intersections.size();
+		switch (intersection.getType()) {
+		case PrincPrinc: 	intersectionsParType[0]++; break;
+		case SecSec: 		intersectionsParType[1]++; break;
+		case PrincSec: 		intersectionsParType[2]++; break;
+		default:			// (rien)
+		}
+		calculateTemps();
+		calculateDistance();
+		findDirection();
+	}
+	
+	/**
+	 * Prend les points d'un second objet Trajet et les ajoute à la fin de la liste de cet objet.
+	 * Cette fonction nécessite que ce trajet fini au même endroit que le second Trajet commence.
+	 * @param t Trajet à intégrer.
+	 * @throws Exception Si le trajet à combiner ne commence pas à la même intersection que ce trajet fini.
+	 */
+	public void combine(Trajet t) throws Exception {
+		if (t.nbIntersections >= 1) {
+			if (nbIntersections == 0) {
+				addIntersectionArrayList(t.getIntersections());
+			} else {
+				if (getDestination().equals(t.getDepart())) {
+					addIntersectionArrayList(t.getIntersections().subList(1, t.getNbIntersections()));
+					nbIntersections = intersections.size();
+				} else {
+					throw new Exception("Le Trajet à combiner (" + t + ") ne commence pas à la même intersection que ce Trajet (" + this + ") fini.");
+				}
+				
+			}
+		}
+	}
+	
 	public String toString() {
 		String s = "[" + vehicule.getNom() + ": ";
 		for (Intersection inters : intersections) {
@@ -219,20 +248,20 @@ public class Trajet {
 		this.distanceArrivee = distanceArrivee;
 	}
 	
-	public void findDirection() {
-		try {
-			if (nbIntersections > 1) {
-				this.direction = carte.trouverDirection(intersections.get(nbIntersections - 2), intersections.get(nbIntersections - 1));
-			} else {
-				this.direction = directions.undefined;
-			}
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			this.direction = directions.undefined;
-		}
-		
-	}	 
+	/**
+	 * Constructeur de Trajet.
+	 * @param carte La carte sur laquelle le trajet est tracé.
+	 * @param vehicule Le mode de déplacement utilisé.
+	 * @param intersections Intersections du trajet. Peut être vide.
+	 */
+	public Trajet(Carte carte, ModeTransport vehicule, Intersection ... intersections) {
+		super();
+		this.carte = carte;
+		this.nbIntersections = intersections.length;
+		this.vehicule = vehicule;
+		this.intersectionsParType = new int[3];
+		this.intersections = new ArrayList<>();
+		addIntersectionArrayList(new ArrayList<Intersection>(Arrays.asList(intersections)));
+	}
 	 
 }
