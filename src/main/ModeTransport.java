@@ -6,6 +6,8 @@
 
 package main;
 
+import java.awt.Color;
+
 enum typeTransport {
 	marche, velo, voiture, autobus, metro, undefined
 }
@@ -28,6 +30,8 @@ public class ModeTransport {
 	private boolean transportHeureReguliere;	// Indique que le mode de transport peut être utilisé pour les déplacements en dehors des heures de pointe.
 	private boolean transportHeurePointe;		// Indique que le mode de transport peut être utilisé pour les déplacement lors des heures de pointe.
 	private boolean transportEnCommun;			// Indique que le mode de transport est du transport en commun (donc utilise des circuits).
+	
+	private Color couleur;
 	
 	
 
@@ -118,6 +122,10 @@ public class ModeTransport {
 		return transportEnCommun;
 	}
 	
+	public Color getCouleur() {
+		return couleur;
+	}
+	
 	/**
 	 * Prend la liste de variables du véhicule et l'applique à ce mode de transport.
 	 * @param input String représentant les variables du véhicule. Voir le constructeur pour le format.
@@ -125,7 +133,7 @@ public class ModeTransport {
 	public void parseInput(String input) {
 		String[] data = input.split(",");
 		int[] values = new int[data.length];
-		for (int i = 1; i < data.length; i++) {
+		for (int i = 1; i < 7; i++) {
 			values[i] = Integer.parseInt(data[i]);
 		}
 
@@ -135,6 +143,7 @@ public class ModeTransport {
 		this.arretIntersectionPrincSec = values[4];
 		this.arretIntersectionSecSec = values[5];
 		this.delaiEmbarquement = values[6];
+		this.couleur = Color.decode(data[7]);
 		//this.debutTrajet = values[];
 		//this.routesPermises = values[];
 	}
@@ -166,7 +175,7 @@ public class ModeTransport {
 	public ModeTransport(String nom, typeTransport type, int vitesseRoutePrincipale, int vitesseRouteSecondaire,
 			int arretIntersectionPrincPrinc, int arretIntersectionPrincSec, int arretIntersectionSecSec,
 			/*typesIntersection debutTrajet,*/ /*boolean[] routesPermises,*/ int delaiEmbarquement, boolean transportHeureReguliere, boolean transportHeurePointe,
-			boolean transportEnCommun) {
+			boolean transportEnCommun, String couleur) {
 		super();
 		this.nom = nom;
 		this.type = type;
@@ -181,6 +190,7 @@ public class ModeTransport {
 		this.transportHeureReguliere = transportHeureReguliere;
 		this.transportHeurePointe = transportHeurePointe;
 		this.transportEnCommun = transportEnCommun;
+		this.couleur = Color.decode(couleur);
 	}
 	
 }
