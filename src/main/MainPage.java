@@ -5,29 +5,26 @@ contributeurs:
 package main;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-
 import java.awt.Color;
-import java.awt.Insets;
-import java.awt.GridLayout;
-import javax.swing.JButton;
-import javax.swing.JSeparator;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
+import java.awt.EventQueue;
 import java.awt.Font;
-import javax.swing.JComboBox;
-import javax.swing.JToggleButton;
-import javax.swing.JRadioButton;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
-import java.awt.event.ActionEvent;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 public class MainPage extends JFrame {
 
@@ -91,6 +88,7 @@ public class MainPage extends JFrame {
 		//resulting in an incorrect value for itineraireToDrawIndex. I've never had such a strong disdain for a programming language until now.
 		
 	}
+	
 	//existe simplement pour eviter un bug dans refreshAndShowTrajet() causé par la stupidité de java
 	private void refresh(JPanel panelMap, ArrayList<Itineraire> itineraires , int itineraireToDrawIndex, typeTransport vehicleSelected, JLabel labelTitreTrajet, JLabel labelDistance, JLabel labelTemps, JPanel BarreDeProportionDeTrajet) {
 		

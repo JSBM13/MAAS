@@ -1,17 +1,16 @@
 package main;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 
-import javax.swing.*;
-
-
+import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class PanelDrawnMap extends JPanel{
 	
-	
-
-
 	private int mapHeight;
 	private int mapWidth;
 	private int verticalMargin;
@@ -113,7 +112,6 @@ public class PanelDrawnMap extends JPanel{
 		for (int i = 0; i < carte.getNbRoutesVerticales(); i++) {
 			if (carte.getTypeRoute(orientations.verticale, i) == typesRoute.secondaire) {
 				paintRoute(g2D, positionRoutesVerticales[i], 0, positionRoutesVerticales[i], mapHeight, carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale);
-				
 			}
 			
 		}
@@ -121,14 +119,12 @@ public class PanelDrawnMap extends JPanel{
 		for (int i = 0; i < carte.getNbRoutesHorizontales(); i++) {
 			if (carte.getTypeRoute(orientations.horizontale, i) == typesRoute.secondaire) {
 				paintRoute(g2D, 0, positionRoutesHorizontales[i], mapWidth, positionRoutesHorizontales[i], carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale);
-				
 			}
 			
 		}
 		for (int i = 0; i < carte.getNbRoutesVerticales(); i++) {
 			if (carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale) {
 				paintRoute(g2D, positionRoutesVerticales[i], 0, positionRoutesVerticales[i], mapHeight, carte.getTypeRoute(orientations.verticale, i) == typesRoute.principale);
-				
 			}
 			
 		}
@@ -136,9 +132,7 @@ public class PanelDrawnMap extends JPanel{
 		for (int i = 0; i < carte.getNbRoutesHorizontales(); i++) {
 			if (carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale) {
 				paintRoute(g2D, 0, positionRoutesHorizontales[i], mapWidth, positionRoutesHorizontales[i], carte.getTypeRoute(orientations.horizontale, i) == typesRoute.principale);
-				
 			}
-			
 		}
 		
 	}
