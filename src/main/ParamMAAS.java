@@ -129,8 +129,8 @@ public class ParamMAAS extends JDialog {
 	public void populate(Parametres initial) {
 		Parametres paramInitiaux = initial;
 		if (initial == null) {
-			paramInitiaux = new Parametres("400,300,400,300,400",
-					"400,300,400,300",
+			paramInitiaux = new Parametres("400,300,400,300",
+					"400,300,400,300,400",
 					"PSPSPS",
 					"SPSSP",
 					"Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
