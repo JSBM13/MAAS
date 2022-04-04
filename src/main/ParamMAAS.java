@@ -129,15 +129,14 @@ public class ParamMAAS extends JDialog {
 	public void populate(Parametres initial) {
 		Parametres paramInitiaux = initial;
 		if (initial == null) {
-			paramInitiaux = new Parametres(
-					"30,50,100",
-					"60,90,150",
-					"SPSS",
-					"SSPS",
-					"Marche,3,3,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,35,25,15,20,10,300;Métro,50,50,45,0,0,180;Voiture (régulier),30,20,60,40,15,0;Voiture (heure de pointe),20,15,90,60,30,0",
+			paramInitiaux = new Parametres("400,300,400,300",
+					"400,300,400,300,400",
+					"PSPSPS",
+					"SPSSP",
+					"Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
 					"(0,1);(0,4);(5,4)",
-					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1);(1,4) (1,2) (3,0) (3,2) (4,3) (5,3) (3,4) (1,4)",
-					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(2,1) (2,0) (4,0) (5,1) (4,2) (4,4) (2,4) (2,1)"
+					"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
+					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
 					);
 		}
 		populateRoutes(tableRoutesVerticales, paramInitiaux.distanceRoutesVerticales, paramInitiaux.typesRoutesVerticales );
@@ -193,9 +192,10 @@ public class ParamMAAS extends JDialog {
 		for (int i = 0; i < vehicules.length; i++) {
 			String[] val = vehicules[i].split(",");
 			table.setValueAt(val[0], i, 0);
-			for (int j = 1 ; j < val.length; j++) {
+			for (int j = 1 ; j < 7; j++) {
 				table.setValueAt(Integer.parseInt(val[j].trim()), i, j);
 			}
+			table.setValueAt(val[7], i, 7);
 		}
 		tableVehicules.setModel(table);
 	}
@@ -210,9 +210,10 @@ public class ParamMAAS extends JDialog {
 		for (int i = 0; i < model.getRowCount(); i++) {
 			String[] val = new String[model.getColumnCount()];
 			val[0] = (String)model.getValueAt(i, 0);
-			for (int j = 1; j < model.getColumnCount(); j++) {
+			for (int j = 1; j < 7; j++) {
 				val[j] = (Integer.toString((Integer)model.getValueAt(i, j)));
 			}
+			val[7] = (String)model.getValueAt(i, 7);
 			vehicules[i] = String.join(",", val);
 		}
 		return String.join(";", vehicules);
@@ -428,19 +429,19 @@ public class ParamMAAS extends JDialog {
 		scrollPane_2.setViewportView(tableVehicules);
 		tableVehicules.setModel(new DefaultTableModel(
 			new Object[][] {
-				{"Marche", null, null, null, null, null, null},
-				{"V\u00E9lo", null, null, null, null, null, null},
-				{"Autobus", null, null, null, null, null, null},
-				{"M\u00E9tro", null, null, null, null, null, null},
-				{"Voiture (r\u00E9gulier)", null, null, null, null, null, null},
-				{"Voiture (heure de pointe)", null, null, null, null, null, null},
+				{"Marche", null, null, null, null, null, null, null},
+				{"V\u00E9lo", null, null, null, null, null, null, null},
+				{"Autobus", null, null, null, null, null, null, null},
+				{"M\u00E9tro", null, null, null, null, null, null, null},
+				{"Voiture (r\u00E9gulier)", null, null, null, null, null, null, null},
+				{"Voiture (heure de pointe)", null, null, null, null, null, null, null},
 			},
 			new String[] {
-				"Nom", "Vit. (principale)", "Vit. (secondaire)", "Arr\u00EAt (princ-princ)", "Arr\u00EAt (princ-sec)", "Arr\u00EAt (sec-sec)", "Attente"
+				"Nom", "Vit. (principale)", "Vit. (secondaire)", "Arr\u00EAt (princ-princ)", "Arr\u00EAt (princ-sec)", "Arr\u00EAt (sec-sec)", "Attente", "Couleur"
 			}
 		) {
 			Class[] columnTypes = new Class[] {
-				String.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class
+				String.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class, String.class
 			};
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
@@ -459,6 +460,7 @@ public class ParamMAAS extends JDialog {
 		tableVehicules.getColumnModel().getColumn(5).setResizable(false);
 		tableVehicules.getColumnModel().getColumn(5).setPreferredWidth(90);
 		tableVehicules.getColumnModel().getColumn(6).setResizable(false);
+		tableVehicules.getColumnModel().getColumn(7).setResizable(false);
 		
 		JPanel panel_3 = new JPanel();
 		tabbedPane.addTab("Points", null, panel_3, null);
