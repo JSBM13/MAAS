@@ -1,3 +1,7 @@
+/*Auteur de cette classe: Émile Lareau
+contributeurs: 
+*/
+
 package main;
 
 import java.awt.BorderLayout;
@@ -21,101 +25,20 @@ import javax.swing.JComboBox;
 import javax.swing.JToggleButton;
 import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.stream.IntStream;
 import java.awt.event.ActionEvent;
 
 public class MainPage extends JFrame {
 
 	private JPanel contentPane;
-	private PanelDrawnMap panelMap;
-	
-	Carte carte;
-	
-	final static Parametres defaultParams6x5 = new Parametres("400,300,400,300",
-			"400,300,400,300,400",
-			"PSPSPS",
-			"SPSSP",
-			"Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
-			"(0,1);(0,4);(5,4)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
-			);
-	
-	final static Parametres defaultParams20x20= new Parametres("100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
-			"100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
-			"PSSSPSSSSPSSSSPSSPSP",
-			"PSPSSSSPSSSSPSSSPSSP",
-			"Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
-			"(0,1);(0,4);(5,4)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
-			);
-			
-	final static Parametres defaultParams = defaultParams6x5;
-	
-	public void changeItineraire() {
-		/*int[] segVert = {400,300,400,300};
-		int[] segHor = {400,300,400,300,400};
-		Carte.typesRoute[] typeVert = {typesRoute.principale, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire};
-		Carte.typesRoute[] typeHor = {typesRoute.principale, typesRoute.secondaire, typesRoute.secondaire, typesRoute.principale, typesRoute.secondaire};*/
-		
-		
-		
-		ModeTransport vehicules[] = new ModeTransport[6];
-		String[] inputVehicules = new String[6];
-		inputVehicules = defaultParams.vehicules.split(";");
-		vehicules[0] = new ModeTransport("Marche", typeTransport.marche, true, true, false, inputVehicules[0]);
-		vehicules[1] = new ModeTransport("Vélo", typeTransport.velo, true, true, false, inputVehicules[1]);
-		vehicules[2] = new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]);
-		vehicules[3] = new ModeTransport("Metro", typeTransport.metro, true, true, true, inputVehicules[3]);
-		vehicules[4] = new ModeTransport("Voiture", typeTransport.voiture, true, false, false, inputVehicules[4]);
-		vehicules[5] = new ModeTransport("Voiture", typeTransport.voiture, false, true, false, inputVehicules[5]);
-		Circuit[] circuits = Circuit.parseCircuits(defaultParams.circuitsAutobus, vehicules[2]);
-		
-		carte.setCircuits(circuits);
-		System.out.println(Arrays.toString(carte.getCircuits()));
-		
-		Requete req;
-		try {
-			req = new Requete(carte, new Intersection(0, 0), new Intersection(5, 4), false);
-			req.calculateItineraires(vehicules);
-			System.out.println(req);
-			panelMap.setItineraire(req.getItineraire(4));
-			panelMap.repaint();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		
-		
-	}
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					
-					Carte carte = null;
-					try {
-						carte = new Carte(defaultParams.distanceRoutesVerticales, defaultParams.distanceRoutesHorizontales, defaultParams.typesRoutesVerticales, defaultParams.typesRoutesHorizontales);
-					} catch (Carte.UnequalNumberOfRoadsException e) {
-						System.out.println(e.getMessage() + " " + e.orientation);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					MainPage frame = new MainPage(carte);
+					MainPage frame = new MainPage();
 					frame.setVisible(true);
-					
-					
-					
-					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -123,53 +46,95 @@ public class MainPage extends JFrame {
 		});
 	}
 	
-	public void refreshAndShowTrajet(JButton btnCancellerTrajet, JLabel labelMoyenTransport, JLabel labelDistance, JLabel labelTemps, JPanel BarreDeProportionDeTrajet, JRadioButton rdbtnVoiture, JRadioButton rdbtnVelo, JRadioButton rdbtnMarche, JRadioButton rdbtnTransportEnCommun) {
+	public void refreshAndShowTrajet(JPanel panelMap, Requete requete, JLabel labelTitreTrajet, JLabel labelDistance, JLabel labelTemps, JPanel BarreDeProportionDeTrajet, JRadioButton rdbtnVoiture, JRadioButton rdbtnVelo, JRadioButton rdbtnMarche, JRadioButton rdbtnTransportEnCommun) {
 		//find the selected vehicle option by user
-		String vehicleSelected; //defaults to this in case of error
+		typeTransport vehicleSelected; //defaults to this in case of error
 		
 		if (rdbtnVoiture.isSelected()) {
-			vehicleSelected = "Voiture";
+			vehicleSelected = typeTransport.voiture;
 			
 		} else if (rdbtnVelo.isSelected()){
-			vehicleSelected = "V/lo";
+			vehicleSelected = typeTransport.velo;
 			
 		} else if (rdbtnMarche.isSelected()){
-			vehicleSelected = "Marche";
+			vehicleSelected = typeTransport.marche;
 			
 		} else if (rdbtnTransportEnCommun.isSelected()){
-			vehicleSelected = "Transport en commun";
+			vehicleSelected = typeTransport.autobus;
 			
 		}else{
 			System.out.println("Aucune selection de vehicule faite. refresh failed");
-			labelMoyenTransport.setText("Choississez un moyen de transport!");
+			labelTitreTrajet.setText("Choississez un moyen de transport!");
 			return;
 		}
 		
+		//get itineraires de la requete
+		ArrayList<Itineraire> itineraires =  requete.getItineraires();
+		
+		int itineraireToDrawIndex = 0;
+
+		for(int i = 0; i<itineraires.size() ;i++){
+			if (itineraires.get(i).isVehiculeUsed(vehicleSelected)){
+				if (vehicleSelected == typeTransport.marche && itineraires.get(i).getVehicules().size() == 1) {  //marche is used by both buses rides and walks. we differentiate the two by knowing bus rides use multiple  types of vehicle
+					//then we know its a walk
+					itineraireToDrawIndex = i;
+					refresh(panelMap, itineraires , itineraireToDrawIndex, vehicleSelected,  labelTitreTrajet,labelDistance,  labelTemps, BarreDeProportionDeTrajet);
+					break;
+				}
+				itineraireToDrawIndex = i;
+				refresh(panelMap, itineraires , itineraireToDrawIndex, vehicleSelected,  labelTitreTrajet,labelDistance,  labelTemps, BarreDeProportionDeTrajet);
+				break;
+			}
+		}
+		
+		//because java is a terrible language full of stupid intricacies, you cannot simply put the content of the refresh() function here, because the code KEEPS EXECUTING WITHOUT WAITING FOR THE FOR LOOP TO FINISH,
+		//resulting in an incorrect value for itineraireToDrawIndex. I've never had such a strong disdain for a programming language until now.
+		
+	}
+	//existe simplement pour eviter un bug dans refreshAndShowTrajet() causé par la stupidité de java
+	private void refresh(JPanel panelMap, ArrayList<Itineraire> itineraires , int itineraireToDrawIndex, typeTransport vehicleSelected, JLabel labelTitreTrajet, JLabel labelDistance, JLabel labelTemps, JPanel BarreDeProportionDeTrajet) {
 		
 		//refresh components (set proper text values based on selection)
-		labelDistance.setText(vehicleSelected + " : ");
-		labelTemps.setText("Voiture: ");
-		labelMoyenTransport.setText("Voiture: ");
+		labelDistance.setText("Distance totale: " + itineraires.get(itineraireToDrawIndex).getDistance());
+		labelTemps.setText("Temps total: " + Handler.getTempsPourHumains(itineraires.get(itineraireToDrawIndex).getTemps()));
+		labelTitreTrajet.setText(vehicleSelected + " : ");
 		
 		//show components
 		labelDistance.setVisible(true);
 		labelTemps.setVisible(true);
 		BarreDeProportionDeTrajet.setVisible(true);
-		btnCancellerTrajet.setVisible(true);
+		
+		
+		//set itineraire de la map
+		System.out.println(itineraireToDrawIndex + "!!!EWGNGW");
+		((PanelDrawnMap) panelMap).setItineraire(itineraires.get(itineraireToDrawIndex));
+		
+		//repaint la map
+		((PanelDrawnMap) panelMap).repaint();
 	}
 	
-	public void clearTrajet(JButton btnCancellerTrajet, JLabel labelMoyenTransport, JLabel labelDistance, JLabel labelTemps, JPanel BarreDeProportionDeTrajet) {
-		//hide components
+	public void clearTrajet(JPanel panelMap, JLabel labelTitreTrajet, JLabel labelDistance, JLabel labelTemps, JPanel BarreDeProportionDeTrajet,JComboBox comBoxDepartX,JComboBox comBoxDepartY , JComboBox comBoxDestinationX,JComboBox comBoxDestinationY, JToggleButton btnHeureDePointe) {
+																																																												
+		//hide components 
 		labelDistance.setVisible(false);
 		labelTemps.setVisible(false);
 		BarreDeProportionDeTrajet.setVisible(false);
-		btnCancellerTrajet.setVisible(false);
 		
+		//clear drawn trajet on panelMap
+		((PanelDrawnMap) panelMap).setItineraire(null);  //clear the default trajet on start
+		
+		//repaint map
+		((PanelDrawnMap) panelMap).repaint();
+		
+		//reset selected trajet inputs
+		comBoxDepartX.setSelectedIndex(0);
+		comBoxDepartY.setSelectedIndex(0);
+		comBoxDestinationX.setSelectedIndex(0);
+		comBoxDestinationY.setSelectedIndex(0);
+		btnHeureDePointe.setSelected(false);
 	}
 	
-	public MainPage(Carte carte) {
-		this.carte = carte;
-		
+	public MainPage() {
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 876, 804);
@@ -179,11 +144,10 @@ public class MainPage extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		panelMap = new PanelDrawnMap(carte);
+		JPanel panelMap = new PanelDrawnMap();
 		panelMap.setBounds(10, 11, 614, 504);
 		contentPane.add(panelMap);
 		panelMap.setLayout(new BorderLayout(0, 0));
-		
 		
 		JPanel panelDetailsTrajet = new JPanel();
 		panelDetailsTrajet.setBounds(10, 526, 840, 228);
@@ -214,27 +178,6 @@ public class MainPage extends JFrame {
 		TitreDetailTrajet.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		TitreDetailTrajet.setBounds(204, 0, 626, 32);
 		panelDetailsTrajet.add(TitreDetailTrajet);
-
-		JRadioButton rdbtnVoiture = new JRadioButton("");
-		rdbtnVoiture.setSelected(true);
-		rdbtnVoiture.setHorizontalAlignment(SwingConstants.CENTER);
-		rdbtnVoiture.setBounds(166, 39, 27, 47);
-		panelDetailsTrajet.add(rdbtnVoiture);
-		
-		JRadioButton rdbtnVelo = new JRadioButton("");
-		rdbtnVelo.setHorizontalAlignment(SwingConstants.CENTER);
-		rdbtnVelo.setBounds(166, 88, 27, 47);
-		panelDetailsTrajet.add(rdbtnVelo);
-		
-		JRadioButton rdbtnMarche = new JRadioButton("");
-		rdbtnMarche.setHorizontalAlignment(SwingConstants.CENTER);
-		rdbtnMarche.setBounds(167, 136, 27, 47);
-		panelDetailsTrajet.add(rdbtnMarche);
-		
-		JRadioButton rdbtnTransportEnCommun = new JRadioButton("");
-		rdbtnTransportEnCommun.setHorizontalAlignment(SwingConstants.CENTER);
-		rdbtnTransportEnCommun.setBounds(167, 181, 27, 47);
-		panelDetailsTrajet.add(rdbtnTransportEnCommun);
 		
 		JLabel lblNewLabel_5 = new JLabel(" Voiture");
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -368,8 +311,8 @@ public class MainPage extends JFrame {
 		//debut custom jComboBox code
 		
 		//find the amount of our map horizontal and vertical segments
-		int nbSegmentsHorizontaux = carte.getNbRoutesHorizontales();
-		int nbSegmentsVerticaux = carte.getNbRoutesVerticales();
+		int nbSegmentsHorizontaux = ((PanelDrawnMap) panelMap).getCarte().getNbRoutesHorizontales();
+		int nbSegmentsVerticaux = ((PanelDrawnMap) panelMap).getCarte().getNbRoutesVerticales();
 		
 		//make arrays of size 0-amount of horizontal and vertical segments on our drawn map like so: arrayMapSegmentsHorizontaux = {0,1,2,3,4,5}
 		int[] intArrayMapSegmentsHorizontaux = IntStream.rangeClosed(0, nbSegmentsHorizontaux ).toArray();  //makes an array of range 0- nb segments horizontaux dans map. type casting required because panelMap is type JPanel not PanelDrawnMap
@@ -394,28 +337,16 @@ public class MainPage extends JFrame {
 		comBoxDepartY.setBounds(128, 142, 78, 22);
 		panelSelectionTrajet.add(comBoxDepartY);
 		
-		JComboBox destinationX = new JComboBox(strArrayMapSegmentsHorizontales);
-		destinationX.setBounds(128, 215, 78, 22);
-		panelSelectionTrajet.add(destinationX);
+		JComboBox comBoxDestinationX = new JComboBox(strArrayMapSegmentsHorizontales);
+		comBoxDestinationX.setBounds(128, 215, 78, 22);
+		panelSelectionTrajet.add(comBoxDestinationX);
 		
-		JComboBox destinationY = new JComboBox(strArrayMapSegmentsVerticales);
-		destinationY.setBounds(128, 248, 78, 22);
-		panelSelectionTrajet.add(destinationY);
+		JComboBox comBoxDestinationY = new JComboBox(strArrayMapSegmentsVerticales);
+		comBoxDestinationY.setBounds(128, 248, 78, 22);
+		panelSelectionTrajet.add(comBoxDestinationY);
 		
 		//fin custom code jComboBox
 		
-		
-		JButton btnConfirmerSelection = new JButton("Confirmer s\u00E9lection");
-		btnConfirmerSelection.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				changeItineraire();
-			}
-		});
-		
-		
-		btnConfirmerSelection.setBounds(10, 443, 196, 50);
-		panelSelectionTrajet.add(btnConfirmerSelection);
 		
 		JLabel pointDepartX = new JLabel("Point de d\u00E9part X:");
 		pointDepartX.setFont(new Font("Tahoma", Font.PLAIN, 13));
@@ -430,24 +361,138 @@ public class MainPage extends JFrame {
 		JToggleButton btnHeureDePointe = new JToggleButton("faux");
 		btnHeureDePointe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				if (btnHeureDePointe.isSelected()) {
+					btnHeureDePointe.setText("Vrai");
+				} else {
+					btnHeureDePointe.setText("Faux");
+				}
 			}
 		});
 		btnHeureDePointe.setBounds(128, 325, 78, 60);
 		panelSelectionTrajet.add(btnHeureDePointe);
+	
+		JButton btnCancellerTrajet = new JButton("Canceller Trajet");
+		btnCancellerTrajet.setBounds(40, 471, 136, 22);
+		panelSelectionTrajet.add(btnCancellerTrajet);
+		btnCancellerTrajet.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearTrajet(panelMap, labelTitreTrajet, labelDistance, labelTemps, BarreDeProportionDeTrajet, comBoxDepartX,comBoxDepartY ,comBoxDestinationX, comBoxDestinationY, btnHeureDePointe);
+			}
+		});
+		
+		JRadioButton rdbtnVoiture = new JRadioButton("");
+		JRadioButton rdbtnMarche = new JRadioButton("");
+		JRadioButton rdbtnTransportEnCommun = new JRadioButton("");
+		JRadioButton rdbtnVelo = new JRadioButton("");
+		
+		JButton btnConfirmerSelection = new JButton("Confirmer s\u00E9lection");
+		btnConfirmerSelection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Carte carte = ((PanelDrawnMap) panelMap).getCarte();
+				Intersection depart = new Intersection(Integer.parseInt((String)comBoxDepartX.getSelectedItem()), Integer.parseInt((String)comBoxDepartY.getSelectedItem()));
+				Intersection destination = new Intersection(Integer.parseInt((String)comBoxDestinationX.getSelectedItem()), Integer.parseInt((String)comBoxDestinationY.getSelectedItem()));
+				Boolean heureDePointe;
+				if (btnHeureDePointe.isSelected()){
+					heureDePointe = true;
+				} else {
+					heureDePointe = false;
+				}
+
+				try {
+						
+					Requete requeteDeTrajet = new Requete(carte, depart, destination, heureDePointe); //Carte carte, Intersection depart, Intersection destination, boolean heureDePointe
+						
+					//calcul des itineraires possibles pour chaque type de vehicules
+					requeteDeTrajet.calculateItineraires(Handler.vehicules); 
+					
+					
+					refreshAndShowTrajet(panelMap, requeteDeTrajet,labelTitreTrajet, labelDistance, labelTemps, BarreDeProportionDeTrajet, rdbtnVoiture, rdbtnVelo, rdbtnMarche, rdbtnTransportEnCommun);
+					
+					
+					//OLD ATTEMPT AT IMPLEMENTATION
+					/* types de vehicule
+					vehicules[0] = new ModeTransport("Marche", typeTransport.marche, true, true, false, inputVehicules[0]);
+					vehicules[1] = new ModeTransport("Vélo", typeTransport.velo, true, true, false, inputVehicules[1]);
+					vehicules[2] = new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]);
+					vehicules[3] = new ModeTransport("Metro", typeTransport.metro, true, true, true, inputVehicules[3]);
+					vehicules[4] = new ModeTransport("Voiture", typeTransport.voiture, true, false, false, inputVehicules[4]);
+					*/
+					
+					
+					//return type: ArrayList<Itineraire>    parameters: ModeTransport[] vehicules
+					
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});		
+		btnConfirmerSelection.setBounds(10, 410, 196, 50);
+		panelSelectionTrajet.add(btnConfirmerSelection);
+		
+		//radio buttons content declaration
+		
+		//JRadioButton rdbtnVelo
+		rdbtnVelo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for(ActionListener a: btnConfirmerSelection.getActionListeners()) {
+				    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {});
+				}
+			}
+		});
+		rdbtnVelo.setHorizontalAlignment(SwingConstants.CENTER);
+		rdbtnVelo.setBounds(166, 88, 27, 47);
+		panelDetailsTrajet.add(rdbtnVelo);
+		
+		//JRadioButton rdbtnTransportEnCommun
+		rdbtnTransportEnCommun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//call le action event du confirm button directement
+				for(ActionListener a: btnConfirmerSelection.getActionListeners()) {
+				    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {});
+				}
+			}
+		});
+		rdbtnTransportEnCommun.setHorizontalAlignment(SwingConstants.CENTER);
+		rdbtnTransportEnCommun.setBounds(167, 181, 27, 47);
+		panelDetailsTrajet.add(rdbtnTransportEnCommun);
+		
+		//JRadioButton rdbtnMarche
+		rdbtnMarche.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//call le action event du confirm button directement
+				for(ActionListener a: btnConfirmerSelection.getActionListeners()) {
+				    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {});
+				}
+			}
+		});
+		rdbtnMarche.setHorizontalAlignment(SwingConstants.CENTER);
+		rdbtnMarche.setBounds(167, 136, 27, 47);
+		panelDetailsTrajet.add(rdbtnMarche);
+		
+		//JRadioButton rdbtnVoiture
+		rdbtnVoiture.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//call le action event du confirm button directement
+				for(ActionListener a: btnConfirmerSelection.getActionListeners()) {
+				    a.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null) {});
+				}
+			}
+		});
+		rdbtnVoiture.setSelected(true);
+		rdbtnVoiture.setHorizontalAlignment(SwingConstants.CENTER);
+		rdbtnVoiture.setBounds(166, 39, 27, 47);
+		panelDetailsTrajet.add(rdbtnVoiture);
 		
 		JLabel pointDepartY = new JLabel("Point de d\u00E9part Y:");
 		pointDepartY.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		pointDepartY.setBounds(10, 145, 108, 14);
 		panelSelectionTrajet.add(pointDepartY);
 		
-		
-		
 		JLabel DestinationX = new JLabel("Destination X:");
 		DestinationX.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		DestinationX.setBounds(10, 218, 108, 14);
 		panelSelectionTrajet.add(DestinationX);
-		
 		
 		JLabel lblDestinationY = new JLabel("Destination Y:");
 		lblDestinationY.setFont(new Font("Tahoma", Font.PLAIN, 13));
@@ -461,13 +506,5 @@ public class MainPage extends JFrame {
 		selectionTransport.add(rdbtnMarche);
 		selectionTransport.add(rdbtnTransportEnCommun);
 		
-		JButton btnCancellerTrajet = new JButton("Canceller Trajet");
-		btnCancellerTrajet.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				panelMap.setItineraire(null);
-			}
-		});
-		btnCancellerTrajet.setBounds(705, 39, 125, 32);
-		panelDetailsTrajet.add(btnCancellerTrajet);
 	}
 }

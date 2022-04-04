@@ -33,20 +33,33 @@ public class PanelDrawnMap extends JPanel{
 		try {
 			this.carte = carte;
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public PanelDrawnMap() { //default configuration
+		//image = new ImageIcon("mapMaas.jpg").getImage();
+				//this.setPreferredSize(new Dimension(250,250)); //Size of panel with pack
+		super();
+		try {
+			this.carte = new Carte(defaultParams.distanceRoutesVerticales, defaultParams.distanceRoutesHorizontales, defaultParams.typesRoutesVerticales, defaultParams.typesRoutesHorizontales);
+			carte.setCircuits(Circuit.parseCircuits(defaultParams.circuitsAutobus, Handler.vehicules[2]));
 			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	
 	final static Parametres defaultParams = new Parametres("400,300,400,300",
-			"400,300,400,300,400",
-			"PSPSPS",
-			"SPSSP",
-			"Marche,1,1,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,20,14,15,20,10,300;Métro,25,25,45,0,0,180;Voiture (régulier),20,14,60,40,10,0;Voiture (heure de pointe),8,10,90,60,45,0",
-			"(0,1);(0,4);(5,4)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
-			);
+            "400,300,400,300,400",
+            "PSPSPS",
+            "SPSSP",
+            "Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
+            "(0,1);(0,4);(5,4)",
+            "(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
+            "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
+            );
 	
 	//Fonction de base paint, c'est exécuté chaque fois que le JVM pense que c'est necessaire de paint, comme lors d'une minimisation-maximization
 	public void paint(Graphics g) {
@@ -82,10 +95,9 @@ public class PanelDrawnMap extends JPanel{
 			Intersection arrivee = itineraire.getTrajets(itineraire.getTrajets().size() - 1).getDestination();
 			PointPixel pointArrivee = new PointPixel(positionRoutesVerticales[arrivee.getX()], positionRoutesHorizontales[arrivee.getY()]);
 			
-			
+			paintItineraire(g2D);
 			paintPoint(g2D, pointDepart);
 			paintPoint(g2D, pointArrivee);
-			paintItineraire(g2D);
 		}
 		
 	}
@@ -222,7 +234,6 @@ public class PanelDrawnMap extends JPanel{
 	
 	//Paint un itinéraire en segements, les segments sont de couleurs basé sur le type de véhicule
 	public void paintItineraire(Graphics2D g2D) {
-			
 		//Pour chaque trajets de l'itinéraire...
 		for(int i = 0; i < itineraire.getTrajets().size(); i++) {
 			
@@ -237,7 +248,7 @@ public class PanelDrawnMap extends JPanel{
 					Intersection pointB = trajet.getIntersections().get(j + 1);
 					
 					paintLine(g2D, intersectionToPointPixel(pointA), intersectionToPointPixel(pointB), trajet.getVehicule().getCouleur(), 8);
-					
+					System.out.println(trajet.getVehicule().getCouleur());
 				}
 			}
 		}
@@ -325,7 +336,11 @@ public class PanelDrawnMap extends JPanel{
 	public void setMapWidth(int mapWidth) {
 		this.mapWidth = mapWidth;
 	}
-
+	
+	public Carte getCarte() {
+		return carte;
+	}
+	
 	public double getScale() {
 		return scale;
 	}

@@ -6,14 +6,14 @@ import java.util.Scanner;
 public class Handler {
 
 	final static Parametres defaultParams6x5 = new Parametres("400,300,400,300",
-			"400,300,400,300,400",
-			"PSPSPS",
-			"SPSSP",
-			"Marche,1,1,30,20,5,0;Vélo,6,7,40,30,15,0;Autobus,20,14,15,20,10,300;Métro,25,25,45,0,0,180;Voiture (régulier),20,14,60,40,10,0;Voiture (heure de pointe),8,10,90,60,45,0",
-			"(0,1);(0,4);(5,4)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
-			"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
-			);
+            "400,300,400,300,400",
+            "PSPSPS",
+            "SPSSP",
+            "Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
+            "(0,1);(0,4);(5,4)",
+            "(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
+            "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
+            );
 	
 	final static Parametres defaultParams20x20= new Parametres("100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
 					"100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
@@ -25,9 +25,20 @@ public class Handler {
 					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
 					);
 			
-	final static Parametres defaultParams = defaultParams20x20;
-			
-			
+	final static Parametres defaultParams = defaultParams6x5;
+	
+	static String[] inputVehicules =  defaultParams.vehicules.split(";");
+	
+	static ModeTransport[] vehicules = new ModeTransport[] {     //public ModeTransport(String nom, typeTransport type, boolean transportHeureReguliere, boolean transportHeurePointe, boolean transportEnCommun, String input)
+		new ModeTransport("Marche", typeTransport.marche, true, true, false, inputVehicules[0]),
+		new ModeTransport("Vélo", typeTransport.velo, true, true, false, inputVehicules[1]),
+		new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]),
+		new ModeTransport("Metro", typeTransport.metro, true, true, true, inputVehicules[3]),
+		new ModeTransport("Voiture", typeTransport.voiture, true, false, false, inputVehicules[4]),
+		new ModeTransport("Voiture", typeTransport.voiture, false, true, false, inputVehicules[5]),
+	};
+	
+	
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -45,15 +56,8 @@ public class Handler {
 			System.out.println(e.getMessage() + " " + e.orientation);
 		}
 		
-		ModeTransport vehicules[] = new ModeTransport[6];
-		String[] inputVehicules = new String[6];
-		inputVehicules = defaultParams.vehicules.split(";");
-		vehicules[0] = new ModeTransport("Marche", typeTransport.marche, true, true, false, inputVehicules[0]);
-		vehicules[1] = new ModeTransport("Vélo", typeTransport.velo, true, true, false, inputVehicules[1]);
-		vehicules[2] = new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]);
-		vehicules[3] = new ModeTransport("Metro", typeTransport.metro, true, true, true, inputVehicules[3]);
-		vehicules[4] = new ModeTransport("Voiture", typeTransport.voiture, true, false, false, inputVehicules[4]);
-		vehicules[5] = new ModeTransport("Voiture", typeTransport.voiture, false, true, false, inputVehicules[5]);
+		//old position of ModeTransport vehicules[] = new ModeTransport[6];     and    String[] inputVehicules = new String[6];
+		
 		Circuit[] circuits = Circuit.parseCircuits(defaultParams.circuitsAutobus, vehicules[2]);
 		
 		carte.setCircuits(circuits);
@@ -105,7 +109,4 @@ public class Handler {
 				(minutes != 0 || heures != 0 ? (minutes < 10 ? "0" : "") + minutes + "m" : "") + 
 				(secondes != 0 ? (secondes < 10 ? "0" : "") + secondes + "s" : "");
 	}
-	
-	
-
 }

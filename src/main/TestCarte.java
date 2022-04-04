@@ -39,7 +39,7 @@ public class TestCarte extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		Map panel = new Map();
+		PanelDrawnMap panel = new PanelDrawnMap();
 		contentPane.add(panel, BorderLayout.CENTER);
 	}
 	
