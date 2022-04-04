@@ -36,20 +36,6 @@ public class PanelDrawnMap extends JPanel{
 		}
 	}
 	
-	public PanelDrawnMap() { //default configuration
-		//image = new ImageIcon("mapMaas.jpg").getImage();
-				//this.setPreferredSize(new Dimension(250,250)); //Size of panel with pack
-		super();
-		try {
-			this.carte = new Carte(defaultParams.distanceRoutesVerticales, defaultParams.distanceRoutesHorizontales, defaultParams.typesRoutesVerticales, defaultParams.typesRoutesHorizontales);
-			carte.setCircuits(Circuit.parseCircuits(defaultParams.circuitsAutobus, Handler.vehicules[2]));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	
 	final static Parametres defaultParams = new Parametres("400,300,400,300",
             "400,300,400,300,400",
             "PSPSPS",
@@ -242,7 +228,6 @@ public class PanelDrawnMap extends JPanel{
 					Intersection pointB = trajet.getIntersections().get(j + 1);
 					
 					paintLine(g2D, intersectionToPointPixel(pointA), intersectionToPointPixel(pointB), trajet.getVehicule().getCouleur(), 8);
-					System.out.println(trajet.getVehicule().getCouleur());
 				}
 			}
 		}
