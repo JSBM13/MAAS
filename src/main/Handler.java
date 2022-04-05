@@ -109,4 +109,9 @@ public class Handler {
 				(minutes != 0 || heures != 0 ? (minutes < 10 ? "0" : "") + minutes + "m" : "") + 
 				(secondes != 0 ? (secondes < 10 ? "0" : "") + secondes + "s" : "");
 	}
+	
+	static public String getDistancePourHumains(int distance) {
+		if (distance < 1000) return distance + " m";
+		else return "%.1f km".formatted(distance / 1000.0);
+	}
 }

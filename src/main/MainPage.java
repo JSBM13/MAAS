@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -400,19 +401,23 @@ public class MainPage extends JFrame {
 		}
 		
 		
-		comBoxDepartX = new JComboBox<String>(strArrayMapSegmentsHorizontales);
+		DefaultComboBoxModel<String> comboModelDepartX = new DefaultComboBoxModel<String>(strArrayMapSegmentsHorizontales);
+		comBoxDepartX = new JComboBox<String>(comboModelDepartX);
 		comBoxDepartX.setBounds(128, 109, 78, 22);
 		panelSelectionTrajet.add(comBoxDepartX);
 		
-		comBoxDepartY = new JComboBox<String>(strArrayMapSegmentsVerticales);
+		DefaultComboBoxModel<String> comboModelDepartY = new DefaultComboBoxModel<String>(strArrayMapSegmentsVerticales);
+		comBoxDepartY = new JComboBox<String>(comboModelDepartY);
 		comBoxDepartY.setBounds(128, 142, 78, 22);
 		panelSelectionTrajet.add(comBoxDepartY);
 		
-		comBoxDestinationX = new JComboBox<String>(strArrayMapSegmentsHorizontales);
+		DefaultComboBoxModel<String> comboModelDesinationX = new DefaultComboBoxModel<String>(strArrayMapSegmentsHorizontales);
+		comBoxDestinationX = new JComboBox<String>(comboModelDesinationX);
 		comBoxDestinationX.setBounds(128, 215, 78, 22);
 		panelSelectionTrajet.add(comBoxDestinationX);
 		
-		comBoxDestinationY = new JComboBox<String>(strArrayMapSegmentsVerticales);
+		DefaultComboBoxModel<String> comboModelDesinationY = new DefaultComboBoxModel<String>(strArrayMapSegmentsVerticales);
+		comBoxDestinationY = new JComboBox<String>(comboModelDesinationY);
 		comBoxDestinationY.setBounds(128, 248, 78, 22);
 		panelSelectionTrajet.add(comBoxDestinationY);
 		
