@@ -16,11 +16,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.awt.BorderLayout;
 
 
 public class ParamMAAS extends JDialog {
 
 	private JPanel contentPane;
+	private JPanel panelMapRoutesVerticales;
 	private JTable tableRoutesVerticales;
 	private JTable tableRoutesHorizontales;
 	private JTable tableVehicules;
@@ -29,6 +33,10 @@ public class ParamMAAS extends JDialog {
 	private JTable tableMetro;
 
 	private Parametres resultat;
+	
+	private PanelDrawnMap mapRoutesVerticales;
+	
+	private boolean ready = false;
 	
 	/**
 	 * Quand on annule, simplement fermer la fenêtre sans rien renvoyer.
@@ -43,7 +51,7 @@ public class ParamMAAS extends JDialog {
 	public void ok() {
 		String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesVerticales);
 		String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesHorizontales);
-		String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);;
+		String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);
 		String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
 		String vehicules = extractVehiculesData();
 		String points = extractPointData();
@@ -129,15 +137,7 @@ public class ParamMAAS extends JDialog {
 	public void populate(Parametres initial) {
 		Parametres paramInitiaux = initial;
 		if (initial == null) {
-			paramInitiaux = new Parametres("400,300,400,300",
-					"400,300,400,300,400",
-					"PSPSPS",
-					"SPSSP",
-					"Marche,3,3,30,20,5,0,#FFFF3C;Vélo,6,7,40,30,15,0,#9BFF98;Autobus,35,25,15,20,10,300,#34FFFF;Métro,50,50,45,0,0,180,#BA78E5;Voiture (régulier),30,20,60,40,15,0,#FF7373;Voiture (heure de pointe),20,15,90,60,30,0,#FF7373",
-					"(0,1);(0,4);(5,4)",
-					"(0,4) (4,4) (4,3) (5,3) (5,0) (2,0) (0,0) (0,2) (0,4);(0,1) (2,1) (2,3) (3,4) (4,2) (3,1) (1,0) (0,1);(5,0) (5,2) (3,3) (1,3) (1,0) (3,0) (5,0)",
-					"(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
-					);
+			paramInitiaux = Parametres.defaultParams6x5;
 		}
 		populateRoutes(tableRoutesVerticales, paramInitiaux.distanceRoutesVerticales, paramInitiaux.typesRoutesVerticales );
 		populateRoutes(tableRoutesHorizontales, paramInitiaux.distanceRoutesHorizontales, paramInitiaux.typesRoutesHorizontales);
@@ -273,6 +273,38 @@ public class ParamMAAS extends JDialog {
 		}
 		return String.join(";", circuits);
 	}
+	
+	public void tableRoutesVerticalesEdited() {
+		if (ready) {
+			try {
+				String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesVerticales);
+				String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesHorizontales);
+				String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);
+				String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
+				Carte newCarte = new Carte(distanceRoutesVerticales, distanceRoutesHorizontales, typesRoutesVerticales, typesRoutesHorizontales);
+				mapRoutesVerticales.setCarte(newCarte);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+	}
+	
+	public void tableRoutesHorizontalesEdited() {
+		try {
+			String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesVerticales);
+			String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesHorizontales);
+			String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);
+			String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
+			Carte newCarte = new Carte(distanceRoutesVerticales, distanceRoutesHorizontales, typesRoutesVerticales, typesRoutesHorizontales);
+			mapRoutesVerticales.setCarte(newCarte);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Le code pour faire la fenêtre. Pas grands choses d'interressant ici.
@@ -300,17 +332,23 @@ public class ParamMAAS extends JDialog {
 		tabbedPane.addTab("Routes verticales", null, panel, null);
 		panel.setLayout(null);
 		
-		JPanel panel_5 = new JPanel();
-		panel_5.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_5.setBackground(Color.WHITE);
-		panel_5.setBounds(430, 0, 511, 505);
-		panel.add(panel_5);
+		panelMapRoutesVerticales = new JPanel();
+		panelMapRoutesVerticales.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelMapRoutesVerticales.setBackground(Color.WHITE);
+		panelMapRoutesVerticales.setBounds(430, 0, 511, 505);
+		panel.add(panelMapRoutesVerticales);
+		panelMapRoutesVerticales.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(0, 0, 429, 460);
 		panel.add(scrollPane);
 		
 		tableRoutesVerticales = new JTable();
+		tableRoutesVerticales.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				tableRoutesVerticalesEdited();
+			}
+		});
 		scrollPane.setViewportView(tableRoutesVerticales);
 		tableRoutesVerticales.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableRoutesVerticales.setModel(new DefaultTableModel(
@@ -341,6 +379,7 @@ public class ParamMAAS extends JDialog {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addRow(tableRoutesVerticales, new Object[]{tableRoutesVerticales.getModel().getRowCount(), false, 100});
+				tableRoutesVerticalesEdited();
 			}
 		});
 		btnNewButton_1.setBounds(310, 471, 110, 23);
@@ -350,6 +389,7 @@ public class ParamMAAS extends JDialog {
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteRow(tableRoutesVerticales);
+				tableRoutesVerticalesEdited();
 			}
 			
 		});
@@ -641,6 +681,11 @@ public class ParamMAAS extends JDialog {
 		});
 		btnAnnuler.setBounds(748, 544, 89, 23);
 		contentPane.add(btnAnnuler);
+
+		mapRoutesVerticales = new PanelDrawnMap();
+		panelMapRoutesVerticales.add(mapRoutesVerticales, BorderLayout.CENTER);
+		
+		ready = true;
 	}
 	
 	class Route {

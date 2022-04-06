@@ -11,7 +11,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 import javax.swing.ButtonGroup;
@@ -37,6 +36,7 @@ public class MainPage extends JFrame {
 	private JLabel labelDistance;
 	private JLabel labelTemps;
 	private JPanel BarreDeProportionDeTrajet;
+	private JButton btnConfirmerSelection;
 	private JRadioButton rdbtnVoiture;
 	private JRadioButton rdbtnVelo;
 	private JRadioButton rdbtnMarche;
@@ -60,6 +60,7 @@ public class MainPage extends JFrame {
 			public void run() {
 				try {
 					MainPage frame = new MainPage();
+					frame.initialiseMap();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -77,7 +78,8 @@ public class MainPage extends JFrame {
 		
 		setVehicules();
 		setCarte();
-		
+		panelMap.setCarte(carte);
+		populateComboBoxes();
 	}
 	
 	public void setCarte() {
@@ -85,7 +87,7 @@ public class MainPage extends JFrame {
 		try {
 			carte = new Carte(params.distanceRoutesVerticales, params.distanceRoutesHorizontales, params.typesRoutesVerticales, params.typesRoutesHorizontales);
 		} catch (Carte.UnequalNumberOfRoadsException e) {
-			System.out.println(e.getMessage() + " " + e.orientation);
+			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -117,10 +119,8 @@ public class MainPage extends JFrame {
 	//existe simplement pour eviter un bug dans refreshAndShowTrajet() causé par la stupidité de java
 	private void refresh(Itineraire itineraire) {
 		
-		
-		
 		//refresh components (set proper text values based on selection)
-		labelDistance.setText("Distance totale: " + itineraire.getDistance());
+		labelDistance.setText("Distance totale: " + Handler.getDistancePourHumains(itineraire.getDistance()));
 		labelTemps.setText("Temps total: " + Handler.getTempsPourHumains(itineraire.getTemps()));
 		labelTitreTrajet.setText(itineraire.getNom() + " : ");
 		
@@ -221,9 +221,66 @@ public class MainPage extends JFrame {
 		
 	}
 	
-	public MainPage() {
+	public void comboBoxChanged() {
+		if ((String)comBoxDepartX.getSelectedItem() == (String)comBoxDestinationX.getSelectedItem() && (String)comBoxDepartY.getSelectedItem() == (String)comBoxDestinationY.getSelectedItem() ) {
+			btnConfirmerSelection.setEnabled(false);
+		} else {
+			btnConfirmerSelection.setEnabled(true);
+		}
+	}
+	
+	public void populateComboBoxes() {
+		//debut custom jComboBox code
+		
+		//find the amount of our map horizontal and vertical segments
+		int nbSegmentsHorizontaux = carte.getNbRoutesHorizontales();
+		int nbSegmentsVerticaux = carte.getNbRoutesVerticales();
+		
+		//make arrays of size 0-amount of horizontal and vertical segments on our drawn map like so: arrayMapSegmentsHorizontaux = {0,1,2,3,4,5}
+		int[] intArrayMapSegmentsHorizontaux = IntStream.rangeClosed(0, nbSegmentsHorizontaux ).toArray();  //makes an array of range 0- nb segments horizontaux dans map. type casting required because panelMap is type JPanel not PanelDrawnMap
+		int[] intArrayMapSegmentsVerticaux = IntStream.rangeClosed(0, nbSegmentsVerticaux ).toArray();  //type casting required because panelMap is type JPanel not Map
+		String[] strArrayMapSegmentsHorizontales = new String[nbSegmentsVerticaux]; //j'ai pas pris le temps de penser pourquoi il faut les inverser mais c'est nécessaire
+		String[] strArrayMapSegmentsVerticales = new String[nbSegmentsHorizontaux];
+		
+		//transform the above arrays into arrays of strings[], because JComboBoxes require that as input
+		for (int i = 0; i < nbSegmentsHorizontaux ; i++ ) {
+			strArrayMapSegmentsVerticales[i] = Integer.toString(intArrayMapSegmentsHorizontaux[i]);
+		}
+		for (int i = 0; i < nbSegmentsVerticaux ; i++ ) {
+			strArrayMapSegmentsHorizontales[i] = Integer.toString(intArrayMapSegmentsVerticaux[i]);
+		}
+		
+		
+		DefaultComboBoxModel<String> comboModelDepartX = new DefaultComboBoxModel<String>(strArrayMapSegmentsHorizontales);
+		comBoxDepartX.setModel(comboModelDepartX);
+
+		
+		DefaultComboBoxModel<String> comboModelDepartY = new DefaultComboBoxModel<String>(strArrayMapSegmentsVerticales);
+		comBoxDepartY.setModel(comboModelDepartY);
+
+		
+		DefaultComboBoxModel<String> comboModelDesinationX = new DefaultComboBoxModel<String>(strArrayMapSegmentsHorizontales);
+		comBoxDestinationX.setModel(comboModelDesinationX);
+
+		
+		DefaultComboBoxModel<String> comboModelDesinationY = new DefaultComboBoxModel<String>(strArrayMapSegmentsVerticales);
+		comBoxDestinationY.setModel(comboModelDesinationY);
+
+	}
+	
+	public void initialiseMap() {
+		
+		panelMap = new PanelDrawnMap();
+		panelMap.setBounds(10, 11, 614, 504);
+		contentPane.add(panelMap);
+		panelMap.setLayout(new BorderLayout(0, 0));
 		
 		setParams(null);
+	}
+	
+	public MainPage() {
+		
+		
 		
 		setResizable(false);
 		setTitle("MAAS");
@@ -236,10 +293,7 @@ public class MainPage extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		panelMap = new PanelDrawnMap(carte);
-		panelMap.setBounds(10, 11, 614, 504);
-		contentPane.add(panelMap);
-		panelMap.setLayout(new BorderLayout(0, 0));
+		
 		
 		JPanel panelDetailsTrajet = new JPanel();
 		panelDetailsTrajet.setBounds(10, 526, 840, 228);
@@ -382,42 +436,40 @@ public class MainPage extends JFrame {
 		
 		//debut custom jComboBox code
 		
-		//find the amount of our map horizontal and vertical segments
-		int nbSegmentsHorizontaux = carte.getNbRoutesHorizontales();
-		int nbSegmentsVerticaux = carte.getNbRoutesVerticales();
 		
-		//make arrays of size 0-amount of horizontal and vertical segments on our drawn map like so: arrayMapSegmentsHorizontaux = {0,1,2,3,4,5}
-		int[] intArrayMapSegmentsHorizontaux = IntStream.rangeClosed(0, nbSegmentsHorizontaux ).toArray();  //makes an array of range 0- nb segments horizontaux dans map. type casting required because panelMap is type JPanel not PanelDrawnMap
-		int[] intArrayMapSegmentsVerticaux = IntStream.rangeClosed(0, nbSegmentsVerticaux ).toArray();  //type casting required because panelMap is type JPanel not Map
-		String[] strArrayMapSegmentsHorizontales = new String[nbSegmentsVerticaux]; //j'ai pas pris le temps de penser pourquoi il faut les inverser mais c'est nécessaire
-		String[] strArrayMapSegmentsVerticales = new String[nbSegmentsHorizontaux];
-		
-		//transform the above arrays into arrays of strings[], because JComboBoxes require that as input
-		for (int i = 0; i < nbSegmentsHorizontaux ; i++ ) {
-			strArrayMapSegmentsVerticales[i] = Integer.toString(intArrayMapSegmentsHorizontaux[i]);
-		}
-		for (int i = 0; i < nbSegmentsVerticaux ; i++ ) {
-			strArrayMapSegmentsHorizontales[i] = Integer.toString(intArrayMapSegmentsVerticaux[i]);
-		}
-		
-		
-		DefaultComboBoxModel<String> comboModelDepartX = new DefaultComboBoxModel<String>(strArrayMapSegmentsHorizontales);
-		comBoxDepartX = new JComboBox<String>(comboModelDepartX);
+		comBoxDepartX = new JComboBox<String>();
+		comBoxDepartX.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				comboBoxChanged();
+			}
+		});
 		comBoxDepartX.setBounds(128, 109, 78, 22);
 		panelSelectionTrajet.add(comBoxDepartX);
 		
-		DefaultComboBoxModel<String> comboModelDepartY = new DefaultComboBoxModel<String>(strArrayMapSegmentsVerticales);
-		comBoxDepartY = new JComboBox<String>(comboModelDepartY);
+		comBoxDepartY = new JComboBox<String>();
+		comBoxDepartY.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				comboBoxChanged();
+			}
+		});
 		comBoxDepartY.setBounds(128, 142, 78, 22);
 		panelSelectionTrajet.add(comBoxDepartY);
 		
-		DefaultComboBoxModel<String> comboModelDesinationX = new DefaultComboBoxModel<String>(strArrayMapSegmentsHorizontales);
-		comBoxDestinationX = new JComboBox<String>(comboModelDesinationX);
+		comBoxDestinationX = new JComboBox<String>();
+		comBoxDestinationX.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				comboBoxChanged();
+			}
+		});
 		comBoxDestinationX.setBounds(128, 215, 78, 22);
 		panelSelectionTrajet.add(comBoxDestinationX);
 		
-		DefaultComboBoxModel<String> comboModelDesinationY = new DefaultComboBoxModel<String>(strArrayMapSegmentsVerticales);
-		comBoxDestinationY = new JComboBox<String>(comboModelDesinationY);
+		comBoxDestinationY = new JComboBox<String>();
+		comBoxDestinationY.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				comboBoxChanged();
+			}
+		});
 		comBoxDestinationY.setBounds(128, 248, 78, 22);
 		panelSelectionTrajet.add(comBoxDestinationY);
 		
@@ -465,7 +517,7 @@ public class MainPage extends JFrame {
 		rdbtnVelo = new JRadioButton("V\u00E9lo");
 		rdbtnVelo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
-		JButton btnConfirmerSelection = new JButton("Confirmer s\u00E9lection");
+		btnConfirmerSelection = new JButton("Confirmer s\u00E9lection");
 		btnConfirmerSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -553,6 +605,10 @@ public class MainPage extends JFrame {
 		JButton btnModifierParams = new JButton("Modifier les param\u00E8tres");
 		btnModifierParams.setBounds(230, 765, 200, 23);
 		contentPane.add(btnModifierParams);
+		
+		comboBoxChanged();
+		
+		
 		
 	}
 }

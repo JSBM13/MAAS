@@ -57,22 +57,22 @@ public class Trajet {
 				case nord:
 					orientation = orientations.verticale;
 					segment = point1.getY();
-					distanceSegment = carte.getSegmentsVerticaux(segment);
+					distanceSegment = carte.getSegmentsHorizontaux(segment);
 					break;
 				case est:
 					orientation = orientations.horizontale;
 					segment = point1.getX();
-					distanceSegment = carte.getSegmentsHorizontaux(segment);
+					distanceSegment = carte.getSegmentsVerticaux(segment);
 					break;
 				case sud:
 					orientation = orientations.verticale;
 					segment = point2.getY();
-					distanceSegment = carte.getSegmentsVerticaux(segment);
+					distanceSegment = carte.getSegmentsHorizontaux(segment);
 					break;
 				case ouest:
 					orientation = orientations.horizontale;
 					segment = point2.getX();
-					distanceSegment = carte.getSegmentsHorizontaux(segment);
+					distanceSegment = carte.getSegmentsVerticaux(segment);
 					break;
 				case undefined:
 					// Vraiment pas supposé...

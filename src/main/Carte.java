@@ -409,8 +409,8 @@ public class Carte {
 		String[] distancesHorizontales = inputDistancesHorizontales.split(",");
 		
 		// Si le nombre de routes est correct...
-		if (distancesVerticales.length + 1 == inputTypesHorizontaux.length()) {
-			if (distancesHorizontales.length + 1 == inputTypesVerticaux.length()) {
+		if (distancesVerticales.length + 1 == inputTypesVerticaux.length()) {
+			if (distancesHorizontales.length + 1 == inputTypesHorizontaux.length()) {
 				
 				// ... Construit la carte.
 				this.nbRoutesVerticales = inputTypesVerticaux.length();

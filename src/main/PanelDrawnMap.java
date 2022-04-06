@@ -36,6 +36,19 @@ public class PanelDrawnMap extends JPanel{
 		}
 	}
 	
+	public PanelDrawnMap() {
+		super();
+		Parametres params = Parametres.defaultParams6x5;
+		try {
+			carte = new Carte(params.distanceRoutesVerticales, params.distanceRoutesHorizontales, params.typesRoutesVerticales, params.typesRoutesHorizontales);
+		} catch (Carte.UnequalNumberOfRoadsException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	final static Parametres defaultParams = new Parametres("400,300,400,300",
             "400,300,400,300,400",
             "PSPSPS",
@@ -61,12 +74,12 @@ public class PanelDrawnMap extends JPanel{
 	//Fonction qui recueille toutes les fonctions
 	private void paintCarte(Graphics2D g2D) {
 		
-		mapWidth = sumArray(carte.getSegmentsHorizontaux()); //Fait la somme des segements horizontaux et le met dans mapWidth
-		mapHeight = sumArray(carte.getSegmentsVerticaux()); //Fait la somme des segements verticaux et le met dans mapHeight
+		mapWidth = sumArray(carte.getSegmentsVerticaux()); //Fait la somme des segements horizontaux et le met dans mapWidth
+		mapHeight = sumArray(carte.getSegmentsHorizontaux()); //Fait la somme des segements verticaux et le met dans mapHeight
 		
-		positionRoutesHorizontales = sumFromBefore(carte.getSegmentsVerticaux()); // Crée un array de la longeur des segements
+		positionRoutesHorizontales = sumFromBefore(carte.getSegmentsHorizontaux()); // Crée un array de la longeur des segements
 		//verticaux à partir du point 0,0, cela permet de trouver de la position de chacune des routes, c'est le x
-		positionRoutesVerticales = sumFromBefore(carte.getSegmentsHorizontaux()); // Crée un array de la longeur des segements
+		positionRoutesVerticales = sumFromBefore(carte.getSegmentsVerticaux()); // Crée un array de la longeur des segements
 		//horizontaux à partir du point 0,0, cela permet de trouver de la position de chacune des routes, c'est le y
 		
 		
@@ -149,9 +162,6 @@ public class PanelDrawnMap extends JPanel{
 		int segmentAvantX = 0;
 		int segmentAvantY = 0;
 		
-		int dernierX = 5;
-		int dernierY = 4;
-		
 		//Offset pour les x sur position y
 		int offsetY = -160;
 		
@@ -164,35 +174,30 @@ public class PanelDrawnMap extends JPanel{
 		//Taille des chiffres
 		int tailleChiffres = 40;
 		
+		if (carte.getNbRoutesHorizontales() > 7 || carte.getNbRoutesVerticales() > 7) tailleChiffres = 12;
+		
 		//Couleur des chiffres
 		Color color = Color.black;
 		
 		
-		//Paint tous les numéros des X sauf le dernier
-		for (int i = 0; i < carte.getNbRoutesHorizontales(); i++) {
+		//Paint tous les numéros des X
+		for (int i = 0; i < carte.getNbRoutesVerticales(); i++) {
 
 				String stringNb = Integer.toString(i);
 				paintString(g2D, scale(segmentAvantX - offsetCentrer, offsetY), stringNb, color,tailleChiffres);
 				
-				segmentAvantX  += carte.getSegmentsHorizontaux(i);
-	
-			
+				if (i < carte.getNbRoutesVerticales() - 1 ) segmentAvantX  += carte.getSegmentsVerticaux(i);
 		}	
-		
-		//Paint le dernier X
-		String stringX = Integer.toString(dernierX);
-		paintString(g2D, scale(segmentAvantX - offsetCentrer, offsetY), stringX, color,tailleChiffres);
-		
-		segmentAvantX  += carte.getSegmentsHorizontaux(dernierX-1);
+
 		
 		
-		//Paint tous les numéros des Y sauf le dernier 
-		for (int i = 0; i < carte.getNbRoutesVerticales()-2; i++) {
+		//Paint tous les numéros des Y
+		for (int i = 0; i < carte.getNbRoutesHorizontales(); i++) {
 		 
 			 String stringNb = Integer.toString(i);
 			 paintString(g2D, scale(offsetX, segmentAvantY - offsetCentrer), stringNb, color,tailleChiffres);
 		 
-			 segmentAvantY += carte.getSegmentsVerticaux(i);
+			 if (i < carte.getNbRoutesHorizontales() - 1 ) segmentAvantY += carte.getSegmentsHorizontaux(i);
 		  
 		  
 		 }
@@ -200,12 +205,6 @@ public class PanelDrawnMap extends JPanel{
 		//RePaint en blanc sur le 0 des Y pour l'enlever
 		String stringNb = Integer.toString(0);
 		paintString(g2D, scale(offsetX, - offsetCentrer), stringNb, Color.white,tailleChiffres);
-		  
-		//Paint le dernier Y
-		String stringY = Integer.toString(dernierY);
-		paintString(g2D, scale(offsetX, segmentAvantY - offsetCentrer), stringY, color,tailleChiffres);
-		
-		segmentAvantX  += carte.getSegmentsVerticaux(dernierY-1);
 		 
 	
 	}
@@ -326,6 +325,11 @@ public class PanelDrawnMap extends JPanel{
 	
 	public void setItineraire(Itineraire itineraire) {
 		this.itineraire = itineraire;
+	}
+	
+	public void setCarte(Carte carte) {
+		this.carte = carte;
+		repaint();
 	}
 	
 	//Pour créer un objet pixel avec coordonnees x et y
