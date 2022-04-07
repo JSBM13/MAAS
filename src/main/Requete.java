@@ -41,15 +41,14 @@ public class Requete {
 		}
 		
 		// On ajoute le meilleur circuit de transport en commun, avec la marche comme méthode intermédiaire de se rendre aux arrêts.
-		//calculateMeilleurItineraireTransportEnCommun("Transport en commun", vehicules[0]);
+		calculateMeilleurItineraireTransportEnCommun("Transport en commun", vehicules[0]);
 		
-		calculateAllTransportEnCommun(vehicules[0]);
+		//calculateAllTransportEnCommun(vehicules[0]);
 		
 		return itineraires;
 	}
 	
 	public int calculateRecommendation() {
-		
 		
 		return recommandation;
 	}

@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+@SuppressWarnings("serial")
 public class TestPagePrincipal extends JFrame {
 
 	
@@ -68,7 +69,8 @@ public class TestPagePrincipal extends JFrame {
 
 	private void openDialog() {
 		ParamMAAS dialog = new ParamMAAS();
-		param = dialog.showDialog(param);
+		Parametres newParam = dialog.showDialog(param);
+		if (newParam != null) param = newParam;
 		System.out.println(param);
 		updateParam();
 	}
@@ -89,7 +91,7 @@ public class TestPagePrincipal extends JFrame {
 				}
 				
 				String[] lines = paramFile.split("\\R");
-				param = new Parametres(
+				Parametres newParam = new Parametres(
 						lines[0],
 						lines[1],
 						lines[2],
@@ -99,7 +101,9 @@ public class TestPagePrincipal extends JFrame {
 						lines[6],
 						lines[7]
 						);
-						
+				if (newParam != null) param = newParam;
+				
+				updateParam();
 						
 						
 			} catch (FileNotFoundException e) {

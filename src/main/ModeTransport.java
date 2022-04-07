@@ -126,6 +126,10 @@ public class ModeTransport {
 		return couleur;
 	}
 	
+	public void setCouleur(Color couleur) {
+		this.couleur = couleur;
+	}
+	
 	/**
 	 * Prend la liste de variables du véhicule et l'applique à ce mode de transport.
 	 * @param input String représentant les variables du véhicule. Voir le constructeur pour le format.

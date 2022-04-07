@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -21,6 +22,7 @@ public class PanelDrawnMap extends JPanel{
 	private int[] positionRoutesVerticales;
 	
 	private Itineraire itineraire;
+	private ArrayList<Intersection> points;
 
 	private Carte carte;
 	
@@ -29,6 +31,7 @@ public class PanelDrawnMap extends JPanel{
 		//image = new ImageIcon("mapMaas.jpg").getImage();
 				//this.setPreferredSize(new Dimension(250,250)); //Size of panel with pack
 		super();
+		this.points = new ArrayList<Intersection>();
 		try {
 			this.carte = carte;
 		} catch (Exception e) {
@@ -38,6 +41,7 @@ public class PanelDrawnMap extends JPanel{
 	
 	public PanelDrawnMap() {
 		super();
+		this.points = new ArrayList<Intersection>();
 		Parametres params = Parametres.defaultParams6x5;
 		try {
 			carte = new Carte(params.distanceRoutesVerticales, params.distanceRoutesHorizontales, params.typesRoutesVerticales, params.typesRoutesHorizontales);
@@ -97,6 +101,15 @@ public class PanelDrawnMap extends JPanel{
 			paintPoint(g2D, pointDepart);
 			paintPoint(g2D, pointArrivee);
 		}
+		
+		if (points.size() > 0) {
+			for (int i = 0; i < points.size(); i++) {
+				Intersection pointDessiner = points.get(i);
+				PointPixel point = new PointPixel(positionRoutesVerticales[pointDessiner.getX()], positionRoutesHorizontales[pointDessiner.getY()]);
+				paintPoint(g2D, point);
+			}
+		}
+		
 		
 	}
 	
@@ -226,7 +239,7 @@ public class PanelDrawnMap extends JPanel{
 					Intersection pointA = trajet.getIntersections().get(j);
 					Intersection pointB = trajet.getIntersections().get(j + 1);
 					
-					paintLine(g2D, intersectionToPointPixel(pointA), intersectionToPointPixel(pointB), trajet.getVehicule().getCouleur(), 8);
+					paintLine(g2D, intersectionToPointPixel(pointA), intersectionToPointPixel(pointB), trajet.getVehicule().getCouleur(), getRouteSize());
 				}
 			}
 		}
@@ -239,15 +252,21 @@ public class PanelDrawnMap extends JPanel{
 
 	}
 
-		
+	private int getRouteSize() {
+		if (carte.getNbRoutesHorizontales() > 8 || carte.getNbRoutesVerticales() > 8) {
+			return 5;
+		} else {
+			return 8;
+		}
+	}
 
 
 	//Paint une ligne basé sur l'emplacement d'une route, donc paint une route
 	private void paintRoute(Graphics2D g2D, int x1, int y1, int x2, int y2, boolean principal) {
 		if (principal) {
-			paintLine(g2D, scale(x1 - 1,y1 - 1), scale(x2 - 1,y2 - 1), Color.decode("#202020"), 8);
+			paintLine(g2D, scale(x1,y1), scale(x2,y2), Color.decode("#202020"), getRouteSize() );
 		} else {
-			paintLine(g2D, scale(x1,y1), scale(x2,y2), Color.decode("#A0A0A0"), 8);
+			paintLine(g2D, scale(x1,y1), scale(x2,y2), Color.decode("#A0A0A0"), getRouteSize() );
 		}
 		
 	}
@@ -330,6 +349,22 @@ public class PanelDrawnMap extends JPanel{
 	public void setCarte(Carte carte) {
 		this.carte = carte;
 		repaint();
+	}
+	
+	public ArrayList<Intersection> getPoints() {
+		return this.points;
+	}
+	
+	public void setPoints(ArrayList<Intersection> points) {
+		this.points = points; 
+	}
+	
+	public void clearPoints() {
+		this.points.clear();
+	}
+	
+	public void addPoint(Intersection point) {
+		this.points.add(point);
 	}
 	
 	//Pour créer un objet pixel avec coordonnees x et y

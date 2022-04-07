@@ -14,6 +14,10 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.beans.PropertyChangeListener;
@@ -21,10 +25,15 @@ import java.beans.PropertyChangeEvent;
 import java.awt.BorderLayout;
 
 
+@SuppressWarnings("serial")
 public class ParamMAAS extends JDialog {
 
+	// Composantes de l'interface
 	private JPanel contentPane;
 	private JPanel panelMapRoutesVerticales;
+	private JPanel panelMapRoutesHorizontales;
+	private JPanel panelMapCircuitsAutobus;
+	private JPanel panelMapCircuitsMetro;
 	private JTable tableRoutesVerticales;
 	private JTable tableRoutesHorizontales;
 	private JTable tableVehicules;
@@ -32,10 +41,17 @@ public class ParamMAAS extends JDialog {
 	private JTable tableAutobus;
 	private JTable tableMetro;
 
+	// Cartes dynamiques
+	private PanelDrawnMap mapRoutesVerticales;
+	private PanelDrawnMap mapRoutesHorizontales;
+	private PanelDrawnMap mapCircuitsAutobus;
+	private PanelDrawnMap mapCircuitsMetro;
+	
+	// Paramètres à retourner, si l'utilisateur clique Okay.
 	private Parametres resultat;
 	
-	private PanelDrawnMap mapRoutesVerticales;
-	
+	// Tourne à vrai quand l'interface a fini de s'initialiser, pour éviter 
+	// que l'on détecte les changements dans les JTable avant que ça soit voulu.
 	private boolean ready = false;
 	
 	/**
@@ -274,42 +290,106 @@ public class ParamMAAS extends JDialog {
 		return String.join(";", circuits);
 	}
 	
-	public void tableRoutesVerticalesEdited() {
+	public Carte parseRoutesAsCartes() {
+		String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesVerticales);
+		String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesHorizontales);
+		String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);
+		String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
+		Carte newCarte = null;
+		try {
+			newCarte = new Carte(distanceRoutesVerticales, distanceRoutesHorizontales, typesRoutesVerticales, typesRoutesHorizontales);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return newCarte;
+	}
+	
+	public void updateMapsCarte() {
 		if (ready) {
-			try {
-				String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesVerticales);
-				String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesHorizontales);
-				String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);
-				String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
-				Carte newCarte = new Carte(distanceRoutesVerticales, distanceRoutesHorizontales, typesRoutesVerticales, typesRoutesHorizontales);
+			Carte newCarte = parseRoutesAsCartes();
+			if (newCarte != null) {
 				mapRoutesVerticales.setCarte(newCarte);
-
-			} catch (Exception e) {
-				e.printStackTrace();
+				mapRoutesHorizontales.setCarte(newCarte);
+				mapCircuitsAutobus.setCarte(newCarte);
+				mapCircuitsMetro.setCarte(newCarte);
 			}
 		}
-		
-		
+	}
+	
+	public void tableRoutesVerticalesEdited() {
+		updateMapsCarte();
 	}
 	
 	public void tableRoutesHorizontalesEdited() {
+		updateMapsCarte();
+	}
+	
+	public boolean isCircuitValid(Carte carte, String circuit) {
 		try {
-			String distanceRoutesHorizontales = extractRouteDistanceData(tableRoutesVerticales);
-			String distanceRoutesVerticales = extractRouteDistanceData(tableRoutesHorizontales);
-			String typesRoutesVerticales = extractRouteTypeData(tableRoutesVerticales);
-			String typesRoutesHorizontales = extractRouteTypeData(tableRoutesHorizontales);
-			Carte newCarte = new Carte(distanceRoutesVerticales, distanceRoutesHorizontales, typesRoutesVerticales, typesRoutesHorizontales);
-			mapRoutesVerticales.setCarte(newCarte);
-
+			if (circuit != "") {
+				String[] pointsText = circuit.replace(" ", "").split("\\)\\(");
+				for (int i = 0; i < pointsText.length; i++) {
+					String s = pointsText[i].replace("(", "").replace(")", "");
+					int x, y;
+					x = Integer.parseInt(s.substring(0,s.indexOf(',')));
+					y = Integer.parseInt(s.substring(s.indexOf(',') + 1));
+					if (!carte.intersectionExiste(x, y)) {
+						return false;
+					}
+				}
+				return true;
+					
+			}
+			return false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			return false;
 		}
+		
+	}
+	
+	public void tableCircuitsEdited(JTable table, PanelDrawnMap map, Color couleur) {
+		
+		if (table.getSelectedRow() != -1) {
+			Carte tempCarte = parseRoutesAsCartes();
+			try {
+				Carte circuitCarte = parseRoutesAsCartes();
+				Circuit[] circuits = new Circuit[1];
+				String[] inputVehicules = extractVehiculesData().split(";");
+				ModeTransport autobus = new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]);
+				autobus.setCouleur(couleur);
+				String circuitData = (String)table.getModel().getValueAt( table.getSelectedRow(), 1);
+				if (isCircuitValid(circuitCarte, circuitData)) {
+					circuits[0] = new Circuit(autobus,circuitData);
+					circuitCarte.setCircuits(circuits);
+					map.setCarte(circuitCarte);
+					Trajet t = map.getCarte().produireTrajetCircuit(0, 0, circuits[0].getNbArrets());
+					Itineraire itin = new Itineraire("Essai circuit");
+					itin.addTrajet(t);
+					map.setItineraire(itin);
+					map.clearPoints();
+					for (Intersection pt : circuits[0].getArrets()) {
+						map.addPoint(pt);
+					}
+				} else {
+					map.setCarte(tempCarte);
+					map.clearPoints();
+					map.setItineraire(null);
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				map.setCarte(tempCarte);
+				map.clearPoints();
+				map.setItineraire(null);
+			}
+			
+		}		
 	}
 
 	/**
 	 * Le code pour faire la fenêtre. Pas grands choses d'interressant ici.
 	 */
-	@SuppressWarnings("serial")
 	public ParamMAAS() {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		
@@ -328,20 +408,20 @@ public class ParamMAAS extends JDialog {
 		tabbedPane.setBounds(0, 0, 946, 533);
 		contentPane.add(tabbedPane);
 		
-		JPanel panel = new JPanel();
-		tabbedPane.addTab("Routes verticales", null, panel, null);
-		panel.setLayout(null);
+		JPanel tabRoutesVerticales = new JPanel();
+		tabbedPane.addTab("Routes verticales", null, tabRoutesVerticales, null);
+		tabRoutesVerticales.setLayout(null);
 		
 		panelMapRoutesVerticales = new JPanel();
 		panelMapRoutesVerticales.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panelMapRoutesVerticales.setBackground(Color.WHITE);
 		panelMapRoutesVerticales.setBounds(430, 0, 511, 505);
-		panel.add(panelMapRoutesVerticales);
+		tabRoutesVerticales.add(panelMapRoutesVerticales);
 		panelMapRoutesVerticales.setLayout(new BorderLayout(0, 0));
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 0, 429, 460);
-		panel.add(scrollPane);
+		JScrollPane scrollPaneTableRoutesVerticales = new JScrollPane();
+		scrollPaneTableRoutesVerticales.setBounds(0, 0, 429, 460);
+		tabRoutesVerticales.add(scrollPaneTableRoutesVerticales);
 		
 		tableRoutesVerticales = new JTable();
 		tableRoutesVerticales.addPropertyChangeListener(new PropertyChangeListener() {
@@ -349,7 +429,7 @@ public class ParamMAAS extends JDialog {
 				tableRoutesVerticalesEdited();
 			}
 		});
-		scrollPane.setViewportView(tableRoutesVerticales);
+		scrollPaneTableRoutesVerticales.setViewportView(tableRoutesVerticales);
 		tableRoutesVerticales.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableRoutesVerticales.setModel(new DefaultTableModel(
 			new Object[][] {
@@ -375,36 +455,41 @@ public class ParamMAAS extends JDialog {
 		tableRoutesVerticales.getColumnModel().getColumn(1).setResizable(false);
 		tableRoutesVerticales.getColumnModel().getColumn(2).setResizable(false);
 		
-		JButton btnNewButton_1 = new JButton("Ajouter");
-		btnNewButton_1.addActionListener(new ActionListener() {
+		JButton btnAjouterRouteVerticale = new JButton("Ajouter");
+		btnAjouterRouteVerticale.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addRow(tableRoutesVerticales, new Object[]{tableRoutesVerticales.getModel().getRowCount(), false, 100});
 				tableRoutesVerticalesEdited();
 			}
 		});
-		btnNewButton_1.setBounds(310, 471, 110, 23);
-		panel.add(btnNewButton_1);
+		btnAjouterRouteVerticale.setBounds(310, 471, 110, 23);
+		tabRoutesVerticales.add(btnAjouterRouteVerticale);
 		
-		JButton btnNewButton_2 = new JButton("Supprimer");
-		btnNewButton_2.addActionListener(new ActionListener() {
+		JButton btnSupprimerRouteVerticale = new JButton("Supprimer");
+		btnSupprimerRouteVerticale.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteRow(tableRoutesVerticales);
 				tableRoutesVerticalesEdited();
 			}
 			
 		});
-		btnNewButton_2.setBounds(190, 471, 110, 23);
-		panel.add(btnNewButton_2);
+		btnSupprimerRouteVerticale.setBounds(190, 471, 110, 23);
+		tabRoutesVerticales.add(btnSupprimerRouteVerticale);
 		
-		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("Routes horizontales", null, panel_1, null);
-		panel_1.setLayout(null);
+		JPanel tabRoutesHorizontales = new JPanel();
+		tabbedPane.addTab("Routes horizontales", null, tabRoutesHorizontales, null);
+		tabRoutesHorizontales.setLayout(null);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(0, 0, 429, 460);
-		panel_1.add(scrollPane_1);
+		JScrollPane scrollPaneRoutesHorizontales = new JScrollPane();
+		scrollPaneRoutesHorizontales.setBounds(0, 0, 429, 460);
+		tabRoutesHorizontales.add(scrollPaneRoutesHorizontales);
 		
 		tableRoutesHorizontales = new JTable();
+		tableRoutesHorizontales.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				tableRoutesHorizontalesEdited();
+			}
+		});
 		tableRoutesHorizontales.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableRoutesHorizontales.setModel(new DefaultTableModel(
 			new Object[][] {
@@ -431,42 +516,44 @@ public class ParamMAAS extends JDialog {
 		tableRoutesHorizontales.getColumnModel().getColumn(2).setResizable(false);
 		//tableRoutesHorizontales.getColumnModel().getColumn(0).set
 		tableRoutesHorizontales.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		scrollPane_1.setViewportView(tableRoutesHorizontales);
+		scrollPaneRoutesHorizontales.setViewportView(tableRoutesHorizontales);
 		
-		JButton btnNewButton_2_1 = new JButton("Supprimer");
-		btnNewButton_2_1.addActionListener(new ActionListener() {
+		JButton btnSupprimerRouteHorizontale = new JButton("Supprimer");
+		btnSupprimerRouteHorizontale.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteRow(tableRoutesHorizontales);
+				tableRoutesHorizontalesEdited();
 			}
 		});
-		btnNewButton_2_1.setBounds(190, 471, 110, 23);
-		panel_1.add(btnNewButton_2_1);
+		btnSupprimerRouteHorizontale.setBounds(190, 471, 110, 23);
+		tabRoutesHorizontales.add(btnSupprimerRouteHorizontale);
 		
-		JButton btnNewButton_1_1 = new JButton("Ajouter");
-		btnNewButton_1_1.addActionListener(new ActionListener() {
+		JButton btnAjouterRouteHorizontale = new JButton("Ajouter");
+		btnAjouterRouteHorizontale.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addRow(tableRoutesHorizontales, new Object[]{tableRoutesHorizontales.getModel().getRowCount(), false, 100});
+				tableRoutesHorizontalesEdited();
 			}
 		});
-		btnNewButton_1_1.setBounds(310, 471, 110, 23);
-		panel_1.add(btnNewButton_1_1);
+		btnAjouterRouteHorizontale.setBounds(310, 471, 110, 23);
+		tabRoutesHorizontales.add(btnAjouterRouteHorizontale);
 		
-		JPanel panel_5_1 = new JPanel();
-		panel_5_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_5_1.setBackground(Color.WHITE);
-		panel_5_1.setBounds(430, 0, 511, 505);
-		panel_1.add(panel_5_1);
+		panelMapRoutesHorizontales = new JPanel();
+		panelMapRoutesHorizontales.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelMapRoutesHorizontales.setBackground(Color.WHITE);
+		panelMapRoutesHorizontales.setBounds(430, 0, 511, 505);
+		tabRoutesHorizontales.add(panelMapRoutesHorizontales);
 		
-		JPanel panel_2 = new JPanel();
-		tabbedPane.addTab("V\u00E9hicules", null, panel_2, null);
-		panel_2.setLayout(null);
+		JPanel tabVehicules = new JPanel();
+		tabbedPane.addTab("V\u00E9hicules", null, tabVehicules, null);
+		tabVehicules.setLayout(null);
 		
-		JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setBounds(0, 0, 941, 505);
-		panel_2.add(scrollPane_2);
+		JScrollPane scrollPaneVehicules = new JScrollPane();
+		scrollPaneVehicules.setBounds(0, 0, 941, 505);
+		tabVehicules.add(scrollPaneVehicules);
 		
 		tableVehicules = new JTable();
-		scrollPane_2.setViewportView(tableVehicules);
+		scrollPaneVehicules.setViewportView(tableVehicules);
 		tableVehicules.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"Marche", null, null, null, null, null, null, null},
@@ -502,13 +589,13 @@ public class ParamMAAS extends JDialog {
 		tableVehicules.getColumnModel().getColumn(6).setResizable(false);
 		tableVehicules.getColumnModel().getColumn(7).setResizable(false);
 		
-		JPanel panel_3 = new JPanel();
-		tabbedPane.addTab("Points", null, panel_3, null);
-		panel_3.setLayout(null);
+		JPanel tabPoints = new JPanel();
+		tabbedPane.addTab("Points", null, tabPoints, null);
+		tabPoints.setLayout(null);
 		
-		JScrollPane scrollPane_3 = new JScrollPane();
-		scrollPane_3.setBounds(0, 0, 941, 460);
-		panel_3.add(scrollPane_3);
+		JScrollPane scrollPanePoints = new JScrollPane();
+		scrollPanePoints.setBounds(0, 0, 941, 460);
+		tabPoints.add(scrollPanePoints);
 		
 		tablePoints = new JTable();
 		tablePoints.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -526,46 +613,47 @@ public class ParamMAAS extends JDialog {
 				return columnTypes[columnIndex];
 			}
 		});
-		scrollPane_3.setViewportView(tablePoints);
+		scrollPanePoints.setViewportView(tablePoints);
 		
-		JButton btnNewButton_5 = new JButton("Ajouter");
-		btnNewButton_5.addActionListener(new ActionListener() {
+		JButton btnAjouterPoint = new JButton("Ajouter");
+		btnAjouterPoint.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addRow(tablePoints, new Object[]{tablePoints.getModel().getRowCount(), 0, 0});
 			}
 		});
-		btnNewButton_5.setBounds(109, 471, 89, 23);
-		panel_3.add(btnNewButton_5);
+		btnAjouterPoint.setBounds(109, 471, 89, 23);
+		tabPoints.add(btnAjouterPoint);
 		
-		JButton btnNewButton_6 = new JButton("Supprimer");
-		btnNewButton_6.addActionListener(new ActionListener() {
+		JButton btnSupprimerPoint = new JButton("Supprimer");
+		btnSupprimerPoint.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteRow(tablePoints);
 			}
 		});
-		btnNewButton_6.setBounds(10, 471, 89, 23);
-		panel_3.add(btnNewButton_6);
+		btnSupprimerPoint.setBounds(10, 471, 89, 23);
+		tabPoints.add(btnSupprimerPoint);
 		
-		JPanel tableCircuitsAutobus = new JPanel();
-		tabbedPane.addTab("Circuits autobus", null, tableCircuitsAutobus, null);
-		tableCircuitsAutobus.setLayout(null);
+		JPanel tabAutobus = new JPanel();
+		tabbedPane.addTab("Circuits autobus", null, tabAutobus, null);
+		tabAutobus.setLayout(null);
 		
-		JPanel panel_6 = new JPanel();
-		panel_6.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_6.setBackground(Color.WHITE);
-		panel_6.setBounds(469, 0, 472, 505);
-		tableCircuitsAutobus.add(panel_6);
+		panelMapCircuitsAutobus = new JPanel();
+		panelMapCircuitsAutobus.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelMapCircuitsAutobus.setBackground(Color.WHITE);
+		panelMapCircuitsAutobus.setBounds(469, 0, 472, 505);
+		tabAutobus.add(panelMapCircuitsAutobus);
+		panelMapCircuitsAutobus.setLayout(new BorderLayout(0, 0));
 		
-		JButton btnNewButton_5_1 = new JButton("Ajouter");
-		btnNewButton_5_1.addActionListener(new ActionListener() {
+		JButton btnAjouterAutobus = new JButton("Ajouter");
+		btnAjouterAutobus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addRow(tableAutobus, new Object[]{tableAutobus.getModel().getRowCount(), "(0,0) (0,5) (5,5) (5,0) (0,0)"});
 			}
 		});
 		
-		JScrollPane scrollPane_4 = new JScrollPane();
-		scrollPane_4.setBounds(0, 0, 466, 460);
-		tableCircuitsAutobus.add(scrollPane_4);
+		JScrollPane scrollPaneAutobus = new JScrollPane();
+		scrollPaneAutobus.setBounds(0, 0, 466, 460);
+		tabAutobus.add(scrollPaneAutobus);
 		
 		tableAutobus = new JTable();
 		tableAutobus.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -592,41 +680,57 @@ public class ParamMAAS extends JDialog {
 		tableAutobus.getColumnModel().getColumn(0).setResizable(false);
 		tableAutobus.getColumnModel().getColumn(0).setPreferredWidth(40);
 		tableAutobus.getColumnModel().getColumn(1).setPreferredWidth(300);
-		scrollPane_4.setViewportView(tableAutobus);
-		btnNewButton_5_1.setBounds(359, 471, 100, 23);
-		tableCircuitsAutobus.add(btnNewButton_5_1);
+		tableAutobus.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+		    public void valueChanged(ListSelectionEvent lse) {
+		        if (!lse.getValueIsAdjusting()) {
+		        	tableCircuitsEdited(tableAutobus, mapCircuitsAutobus, Color.BLUE);
+		        }
+		    }
+		});
+		tableAutobus.getModel().addTableModelListener(new TableModelListener() {
+
+			public void tableChanged(TableModelEvent e) {
+				// TODO Auto-generated method stub
+				tableCircuitsEdited(tableAutobus, mapCircuitsAutobus, Color.BLUE);
+			}
+		});
+		scrollPaneAutobus.setViewportView(tableAutobus);
+		btnAjouterAutobus.setBounds(359, 471, 100, 23);
+		tabAutobus.add(btnAjouterAutobus);
 		
-		JButton btnNewButton_6_1 = new JButton("Supprimer");
-		btnNewButton_6_1.addActionListener(new ActionListener() {
+		JButton btnSupprimerAutobus = new JButton("Supprimer");
+		btnSupprimerAutobus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteRow(tableAutobus);
 			}
 		});
-		btnNewButton_6_1.setBounds(249, 471, 100, 23);
-		tableCircuitsAutobus.add(btnNewButton_6_1);
+		btnSupprimerAutobus.setBounds(249, 471, 100, 23);
+		tabAutobus.add(btnSupprimerAutobus);
 		
-		JPanel panel_7 = new JPanel();
-		panel_7.setLayout(null);
-		tabbedPane.addTab("Circuits m\u00E9tro", null, panel_7, null);
+		JPanel tabMetro = new JPanel();
+		tabMetro.setLayout(null);
+		tabbedPane.addTab("Circuits m\u00E9tro", null, tabMetro, null);
 		
-		JPanel panel_6_1 = new JPanel();
-		panel_6_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_6_1.setBackground(Color.WHITE);
-		panel_6_1.setBounds(469, 0, 472, 505);
-		panel_7.add(panel_6_1);
+		panelMapCircuitsMetro = new JPanel();
+		panelMapCircuitsMetro.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelMapCircuitsMetro.setBackground(Color.WHITE);
+		panelMapCircuitsMetro.setBounds(469, 0, 472, 505);
+		tabMetro.add(panelMapCircuitsMetro);
+		panelMapCircuitsMetro.setLayout(new BorderLayout(0, 0));
 		
-		JButton btnNewButton_3_1 = new JButton("Ajouter");
-		btnNewButton_3_1.addActionListener(new ActionListener() {
+		JButton btnAjouterMetro = new JButton("Ajouter");
+		btnAjouterMetro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addRow(tableMetro, new Object[]{tableMetro.getModel().getRowCount(), "(0,0) (0,5) (5,5) (5,0) (0,0)"});
 			}
 		});
-		btnNewButton_3_1.setBounds(359, 471, 100, 23);
-		panel_7.add(btnNewButton_3_1);
+		btnAjouterMetro.setBounds(359, 471, 100, 23);
+		tabMetro.add(btnAjouterMetro);
 		
-		JScrollPane scrollPane_4_1 = new JScrollPane();
-		scrollPane_4_1.setBounds(0, 0, 468, 460);
-		panel_7.add(scrollPane_4_1);
+		JScrollPane scrollPaneMetro = new JScrollPane();
+		scrollPaneMetro.setBounds(0, 0, 468, 460);
+		tabMetro.add(scrollPaneMetro);
 		
 		tableMetro = new JTable();
 		tableMetro.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -653,25 +757,40 @@ public class ParamMAAS extends JDialog {
 		tableMetro.getColumnModel().getColumn(0).setResizable(false);
 		tableMetro.getColumnModel().getColumn(0).setPreferredWidth(40);
 		tableMetro.getColumnModel().getColumn(1).setPreferredWidth(300);
-		scrollPane_4_1.setViewportView(tableMetro);
+		tableMetro.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+		    public void valueChanged(ListSelectionEvent lse) {
+		        if (!lse.getValueIsAdjusting()) {
+		        	tableCircuitsEdited(tableMetro, mapCircuitsMetro, Color.BLUE);
+		        }
+		    }
+		});
+		tableMetro.getModel().addTableModelListener(new TableModelListener() {
+
+			public void tableChanged(TableModelEvent e) {
+				// TODO Auto-generated method stub
+				tableCircuitsEdited(tableMetro, mapCircuitsMetro, Color.BLUE);
+			}
+		});
+		scrollPaneMetro.setViewportView(tableMetro);
 		
-		JButton btnNewButton_4_1_1 = new JButton("Supprimer");
-		btnNewButton_4_1_1.addActionListener(new ActionListener() {
+		JButton btnSupprimerMetro = new JButton("Supprimer");
+		btnSupprimerMetro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteRow(tableMetro);
 			}
 		});
-		btnNewButton_4_1_1.setBounds(249, 471, 100, 23);
-		panel_7.add(btnNewButton_4_1_1);
+		btnSupprimerMetro.setBounds(249, 471, 100, 23);
+		tabMetro.add(btnSupprimerMetro);
 		
-		JButton btnNewButton = new JButton("Ok");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton btnOK = new JButton("Ok");
+		btnOK.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ok();
 			}
 		});
-		btnNewButton.setBounds(847, 544, 89, 23);
-		contentPane.add(btnNewButton);
+		btnOK.setBounds(847, 544, 89, 23);
+		contentPane.add(btnOK);
 		
 		JButton btnAnnuler = new JButton("Annuler");
 		btnAnnuler.addActionListener(new ActionListener() {
@@ -684,6 +803,16 @@ public class ParamMAAS extends JDialog {
 
 		mapRoutesVerticales = new PanelDrawnMap();
 		panelMapRoutesVerticales.add(mapRoutesVerticales, BorderLayout.CENTER);
+		panelMapRoutesHorizontales.setLayout(new BorderLayout(0, 0));
+		
+		mapRoutesHorizontales = new PanelDrawnMap();
+		panelMapRoutesHorizontales.add(mapRoutesHorizontales, BorderLayout.CENTER);
+		
+		mapCircuitsAutobus = new PanelDrawnMap();
+		panelMapCircuitsAutobus.add(mapCircuitsAutobus, BorderLayout.CENTER);
+		
+		mapCircuitsMetro = new PanelDrawnMap();
+		panelMapCircuitsMetro.add(mapCircuitsMetro, BorderLayout.CENTER);
 		
 		ready = true;
 	}

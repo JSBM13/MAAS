@@ -93,7 +93,11 @@ public class MainPage extends JFrame {
 			e.printStackTrace();
 		}
 		
-		Circuit[] circuits = Circuit.parseCircuits(params.circuitsAutobus, vehicules[2]);
+		Circuit[] circuitsAutobus = Circuit.parseCircuits(params.circuitsAutobus, vehicules[2]);
+		Circuit[] circuitsMetro = Circuit.parseCircuits(params.circuitsMetro, vehicules[3]);
+		Circuit[] circuits = new Circuit[circuitsAutobus.length + circuitsMetro.length];
+		for (int i = 0; i < circuitsAutobus.length; i++) circuits[i] = circuitsAutobus[i];
+		for (int i = circuitsAutobus.length; i < circuits.length; i++) circuits[i] = circuitsMetro[i - circuitsAutobus.length];
 		
 		carte.setCircuits(circuits);
 		
