@@ -11,12 +11,17 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Scanner;
 import java.util.stream.IntStream;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,6 +30,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 @SuppressWarnings("serial")
 public class MainPage extends JFrame {
@@ -280,6 +286,64 @@ public class MainPage extends JFrame {
 		panelMap.setLayout(new BorderLayout(0, 0));
 		
 		setParams(null);
+	}
+	
+	public void editParams() {
+		ParamMAAS dialog = new ParamMAAS();
+		Parametres newParam = dialog.showDialog(params);
+		if (newParam != null) setParams(newParam);
+		System.out.println(params);
+	}
+	
+	public void importParams() {
+		JFileChooser chooser = new JFileChooser();
+		
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileFilter(new FileNameExtensionFilter("Text files", "txt"));
+		int option = chooser.showOpenDialog(null);
+		if (option == JFileChooser.APPROVE_OPTION) {
+			File file = chooser.getSelectedFile();
+			try (Scanner reader = new Scanner(file)) {
+				String paramFile = "";
+				
+				while (reader.hasNextLine()) {
+					paramFile += reader.nextLine() + "\n";
+				}
+				
+				String[] lines = paramFile.split("\\R");
+				Parametres newParam = new Parametres(
+						lines[0],
+						lines[1],
+						lines[2],
+						lines[3],
+						lines[4],
+						lines[5],
+						lines[6],
+						lines[7]
+						);
+				if (newParam != null) setParams(newParam);		
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void exportParams() {
+		JFileChooser chooser = new JFileChooser();
+		
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileFilter(new FileNameExtensionFilter("Text files", "txt"));
+		int option = chooser.showSaveDialog(null);
+		if (option == JFileChooser.APPROVE_OPTION) {
+			String path = chooser.getSelectedFile().getPath();
+			if (!path.endsWith(".txt")) path = path + ".txt";
+			try (PrintWriter out = new PrintWriter(path)) {
+				out.println(params.toSingleString());
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public MainPage() {
@@ -599,14 +663,29 @@ public class MainPage extends JFrame {
 		selectionTransport.add(rdbtnTransportEnCommun);
 		
 		JButton btnExporterParams = new JButton("Exporter les param\u00E8tres...");
+		btnExporterParams.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportParams();
+			}
+		});
 		btnExporterParams.setBounds(650, 765, 200, 23);
 		contentPane.add(btnExporterParams);
 		
 		JButton btnImporterParams = new JButton("Importer des param\u00E8tres");
+		btnImporterParams.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				importParams();
+			}
+		});
 		btnImporterParams.setBounds(440, 765, 200, 23);
 		contentPane.add(btnImporterParams);
 		
 		JButton btnModifierParams = new JButton("Modifier les param\u00E8tres");
+		btnModifierParams.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				editParams();
+			}
+		});
 		btnModifierParams.setBounds(230, 765, 200, 23);
 		contentPane.add(btnModifierParams);
 		

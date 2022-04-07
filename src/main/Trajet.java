@@ -52,26 +52,31 @@ public class Trajet {
 				directions direction = carte.trouverDirection(point1, point2);
 				orientations orientation = null; 
 				int segment = 0;
+				int route = 0;
 				int distanceSegment = 0;
 				switch (direction) {
 				case nord:
 					orientation = orientations.verticale;
 					segment = point1.getY();
+					route = point1.getX();
 					distanceSegment = carte.getSegmentsHorizontaux(segment);
 					break;
 				case est:
 					orientation = orientations.horizontale;
 					segment = point1.getX();
+					route = point1.getY();
 					distanceSegment = carte.getSegmentsVerticaux(segment);
 					break;
 				case sud:
 					orientation = orientations.verticale;
 					segment = point2.getY();
+					route = point2.getX();
 					distanceSegment = carte.getSegmentsHorizontaux(segment);
 					break;
 				case ouest:
 					orientation = orientations.horizontale;
 					segment = point2.getX();
+					route = point2.getY();
 					distanceSegment = carte.getSegmentsVerticaux(segment);
 					break;
 				case undefined:
@@ -79,9 +84,9 @@ public class Trajet {
 					break;
 				}
 				distance += distanceSegment;
-				if (carte.getTypeRoute(orientation, segment) == typesRoute.principale) {
+				if (carte.getTypeRoute(orientation, route) == typesRoute.principale) {
 					distancePrincipale += distanceSegment;
-				} else if (carte.getTypeRoute(orientation, segment) == typesRoute.secondaire) {
+				} else if (carte.getTypeRoute(orientation, route) == typesRoute.secondaire) {
 					distanceSecondaire += distanceSegment;
 				}
 			}
