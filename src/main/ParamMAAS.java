@@ -386,14 +386,6 @@ public class ParamMAAS extends JDialog {
 			
 		}		
 	}
-	
-	public void generateAutobus() {
-		
-	}
-	
-	public void generateMetro() {
-		
-	}
 
 	/**
 	 * Le code pour faire la fenêtre. Pas grands choses d'interressant ici.
@@ -819,26 +811,8 @@ public class ParamMAAS extends JDialog {
 		mapCircuitsAutobus = new PanelDrawnMap();
 		panelMapCircuitsAutobus.add(mapCircuitsAutobus, BorderLayout.CENTER);
 		
-		JButton btnGenerateAutobus = new JButton("G\u00E9n\u00E9rer...");
-		btnGenerateAutobus.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				generateAutobus();
-			}
-		});
-		btnGenerateAutobus.setBounds(139, 471, 100, 23);
-		tabAutobus.add(btnGenerateAutobus);
-		
 		mapCircuitsMetro = new PanelDrawnMap();
 		panelMapCircuitsMetro.add(mapCircuitsMetro, BorderLayout.CENTER);
-		
-		JButton btnGenerateMetro = new JButton("G\u00E9n\u00E9rer...");
-		btnGenerateMetro.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				generateMetro();
-			}
-		});
-		btnGenerateMetro.setBounds(139, 471, 100, 23);
-		tabMetro.add(btnGenerateMetro);
 		
 		ready = true;
 	}

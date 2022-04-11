@@ -52,6 +52,7 @@ public class MainPage extends JFrame {
 	private JComboBox<String> comBoxDepartY;
 	private JComboBox<String> comBoxDestinationX;
 	private JComboBox<String> comBoxDestinationY;
+	private PanelBarreTemps barreTemps;
 	
 	// Variables d'état
 	private Carte carte;
@@ -145,6 +146,10 @@ public class MainPage extends JFrame {
 		
 		//repaint la map
 		panelMap.repaint();
+		
+		barreTemps.setItineraire(itineraire);
+		
+		barreTemps.repaint();
 	}
 	
 	public void clearTrajet() {
@@ -166,6 +171,10 @@ public class MainPage extends JFrame {
 		comBoxDestinationX.setSelectedIndex(0);
 		comBoxDestinationY.setSelectedIndex(0);
 		btnHeureDePointe.setSelected(false);
+		
+		barreTemps.clearItineraire();
+		
+		barreTemps.repaint();
 	}
 	
 	public void confirmSelection() {
@@ -414,77 +423,10 @@ public class MainPage extends JFrame {
 		panelDetailsTrajet.add(BarreDeProportionDeTrajet);
 		BarreDeProportionDeTrajet.setLayout(null);
 		
-		JPanel panel_4 = new JPanel();
-		panel_4.setBackground(Color.GREEN);
-		panel_4.setBounds(10, 11, 140, 49);
-		BarreDeProportionDeTrajet.add(panel_4);
-		panel_4.setLayout(new GridLayout(3, 1, 0, 0));
-		
-		JLabel lblNewLabel_8_1 = new JLabel("Marche");
-		lblNewLabel_8_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4.add(lblNewLabel_8_1);
-		
-		JLabel lblNewLabel_8_2 = new JLabel("4 min");
-		lblNewLabel_8_2.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4.add(lblNewLabel_8_2);
-		
-		JLabel lblNewLabel_8 = new JLabel("0.2 km");
-		lblNewLabel_8.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4.add(lblNewLabel_8);
-		
-		JPanel panel_4_1 = new JPanel();
-		panel_4_1.setBackground(Color.ORANGE);
-		panel_4_1.setBounds(150, 11, 208, 49);
-		BarreDeProportionDeTrajet.add(panel_4_1);
-		panel_4_1.setLayout(new GridLayout(3, 1, 0, 0));
-		
-		JLabel lblNewLabel_8_1_1 = new JLabel("Autobus");
-		lblNewLabel_8_1_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_1.add(lblNewLabel_8_1_1);
-		
-		JLabel lblNewLabel_8_2_1 = new JLabel("14 min");
-		lblNewLabel_8_2_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_1.add(lblNewLabel_8_2_1);
-		
-		JLabel lblNewLabel_8_3 = new JLabel("2 km");
-		lblNewLabel_8_3.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_1.add(lblNewLabel_8_3);
-		
-		JPanel panel_4_1_1 = new JPanel();
-		panel_4_1_1.setBackground(Color.YELLOW);
-		panel_4_1_1.setBounds(358, 11, 182, 49);
-		BarreDeProportionDeTrajet.add(panel_4_1_1);
-		panel_4_1_1.setLayout(new GridLayout(3, 1, 0, 0));
-		
-		JLabel lblNewLabel_8_1_1_1 = new JLabel("Autobus");
-		lblNewLabel_8_1_1_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_1_1.add(lblNewLabel_8_1_1_1);
-		
-		JLabel lblNewLabel_8_2_1_1 = new JLabel("14 min");
-		lblNewLabel_8_2_1_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_1_1.add(lblNewLabel_8_2_1_1);
-		
-		JLabel lblNewLabel_8_3_1 = new JLabel("2 km");
-		lblNewLabel_8_3_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_1_1.add(lblNewLabel_8_3_1);
-		
-		JPanel panel_4_2 = new JPanel();
-		panel_4_2.setBackground(Color.GREEN);
-		panel_4_2.setBounds(540, 11, 80, 49);
-		BarreDeProportionDeTrajet.add(panel_4_2);
-		panel_4_2.setLayout(new GridLayout(3, 1, 0, 0));
-		
-		JLabel lblNewLabel_8_1_2 = new JLabel("Marche");
-		lblNewLabel_8_1_2.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_2.add(lblNewLabel_8_1_2);
-		
-		JLabel lblNewLabel_8_2_2 = new JLabel("3 min");
-		lblNewLabel_8_2_2.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_2.add(lblNewLabel_8_2_2);
-		
-		JLabel lblNewLabel_8_4 = new JLabel("0.15 km");
-		lblNewLabel_8_4.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_4_2.add(lblNewLabel_8_4);
+		barreTemps = new PanelBarreTemps();
+		barreTemps.setBounds(10, 11, 610, 49);
+		BarreDeProportionDeTrajet.add(barreTemps);
+		barreTemps.setLayout(new GridLayout(3, 1, 0, 0));
 		
 		JPanel panelSelectionTrajet = new JPanel();
 		panelSelectionTrajet.setBounds(634, 11, 216, 504);
