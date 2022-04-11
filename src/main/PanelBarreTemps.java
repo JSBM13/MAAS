@@ -17,8 +17,6 @@ public class PanelBarreTemps extends JPanel{
 	public PanelBarreTemps() {
 		super();
 		itineraire = null;
-		
-		
 	}
 	
 	//Fonction de base paint, c'est exécuté chaque fois que le JVM pense que c'est necessaire de paint, comme lors d'une minimisation-maximization
@@ -28,7 +26,6 @@ public class PanelBarreTemps extends JPanel{
         
         g2D.setPaint(Color.white); //Color
         g2D.fillRect(0, 0, getWidth(), getHeight()); //Create rectangle with fill
-        
         
         if (itineraire != null) {
         	int temps = itineraire.getTemps();
@@ -40,8 +37,6 @@ public class PanelBarreTemps extends JPanel{
             	position = position + length;
             }
         }
-        
-        
         
 	}
 	
@@ -58,7 +53,6 @@ public class PanelBarreTemps extends JPanel{
 		drawCenteredString(g2D, temps, new Rectangle(leftPoint, (int) (getHeight() * 0.40), width, (int) (getHeight() * 0.30)), fontNormal);
 		drawCenteredString(g2D, distance, new Rectangle(leftPoint, (int) (getHeight() * 0.70), width, (int) (getHeight() * 0.30)), fontNormal);
 	}
-	
 		
 	/**
 	 * Draw a String centered in the middle of a Rectangle.

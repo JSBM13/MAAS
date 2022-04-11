@@ -59,8 +59,7 @@ public class MainPage extends JFrame {
 	private Parametres params;
 	private ModeTransport[] vehicules;
 	private Requete requete;
-	
-	
+	private typeTransport dernierMoyenDeTransport = typeTransport.voiture;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -140,7 +139,6 @@ public class MainPage extends JFrame {
 		labelTemps.setVisible(true);
 		BarreDeProportionDeTrajet.setVisible(true);
 		
-		
 		//set itineraire de la map
 		panelMap.setItineraire(itineraire);
 		
@@ -175,6 +173,12 @@ public class MainPage extends JFrame {
 		barreTemps.clearItineraire();
 		
 		barreTemps.repaint();
+		
+		rdbtnMarche.setEnabled(false);
+		rdbtnTransportEnCommun.setEnabled(false);
+		rdbtnVelo.setEnabled(false);
+		rdbtnVoiture.setEnabled(false);
+		
 	}
 	
 	public void confirmSelection() {
@@ -195,18 +199,19 @@ public class MainPage extends JFrame {
 			//calcul des itineraires possibles pour chaque type de vehicules
 			requeteDeTrajet.calculateItineraires(vehicules); 
 			
-			
-			afficherModeTransport(typeTransport.voiture);
+			afficherModeTransport(dernierMoyenDeTransport);
 			
 			//return type: ArrayList<Itineraire>    parameters: ModeTransport[] vehicules
+			
+			rdbtnMarche.setEnabled(true);
+			rdbtnTransportEnCommun.setEnabled(true);
+			rdbtnVelo.setEnabled(true);
+			rdbtnVoiture.setEnabled(true);
+			
 			
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-	}
-	
-	public void nouvelleRequete() {
-		
 	}
 	
 	public void afficherModeTransport(typeTransport moyenTransport) {
@@ -237,6 +242,8 @@ public class MainPage extends JFrame {
 		}
 		
 		refresh(requete.getItineraire(indexRequete));
+		
+		dernierMoyenDeTransport = moyenTransport;
 		
 	}
 	
@@ -519,12 +526,16 @@ public class MainPage extends JFrame {
 		});
 		
 		rdbtnVoiture = new JRadioButton("Voiture");
+		rdbtnVoiture.setEnabled(false);
 		rdbtnVoiture.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		rdbtnMarche = new JRadioButton("Marche");
+		rdbtnMarche.setEnabled(false);
 		rdbtnMarche.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		rdbtnTransportEnCommun = new JRadioButton("Transport en commun");
+		rdbtnTransportEnCommun.setEnabled(false);
 		rdbtnTransportEnCommun.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		rdbtnVelo = new JRadioButton("V\u00E9lo");
+		rdbtnVelo.setEnabled(false);
 		rdbtnVelo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		btnConfirmerSelection = new JButton("Confirmer s\u00E9lection");

@@ -283,7 +283,7 @@ public class PanelDrawnMap extends JPanel{
 		g2D.setFont(new Font ("Arial", Font.BOLD, size));
 		g2D.setPaint(color);
 		g2D.drawString(string , p1.x, p1.y);
-	}	
+	}
 	
 	//Paint un cercle
 	private void paintCircle(Graphics2D g2D, PointPixel p1, PointPixel p2, Color color) {
