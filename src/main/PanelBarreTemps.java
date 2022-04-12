@@ -33,7 +33,7 @@ public class PanelBarreTemps extends JPanel{
         	for (int i = 0; i < itineraire.getTrajets().size(); i++) {
             	Trajet trajet = itineraire.getTrajets(i);
             	double length = 1.0 * trajet.getTemps() / temps;
-            	paintSection(g2D, position, position + length, trajet.getVehicule().getCouleur(), trajet.getVehicule().getNom(), Handler.getDistancePourHumains(trajet.getDistance()), Handler.getTempsPourHumains(trajet.getTemps()));
+            	paintSection(g2D, position, position + length, trajet.getVehicule().getCouleur(), trajet.getVehicule().getNom(), UtilitaireString.getDistancePourHumains(trajet.getDistance()), UtilitaireString.getTempsPourHumains(trajet.getTemps()));
             	position = position + length;
             }
         }

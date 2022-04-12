@@ -130,8 +130,8 @@ public class MainPage extends JFrame {
 	private void refresh(Itineraire itineraire) {
 		
 		//refresh components (set proper text values based on selection)
-		labelDistance.setText("Distance totale: " + Handler.getDistancePourHumains(itineraire.getDistance()));
-		labelTemps.setText("Temps total: " + Handler.getTempsPourHumains(itineraire.getTemps()));
+		labelDistance.setText("Distance totale: " + UtilitaireString.getDistancePourHumains(itineraire.getDistance()));
+		labelTemps.setText("Temps total: " + UtilitaireString.getTempsPourHumains(itineraire.getTemps()));
 		labelTitreTrajet.setText(itineraire.getNom() + " : ");
 		
 		//show components

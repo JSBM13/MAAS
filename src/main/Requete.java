@@ -71,7 +71,7 @@ public class Requete {
 		
 		for (int i = 0; i < choix.length; i++) {
 			
-			Itineraire itin = new Itineraire("Transport en commun");
+			Itineraire itin = new Itineraire("Autobus circuit " + i);
 			
 			// Ajout à l'itinéraire de la marche entre l'intersection actuelle et celle du premier arrêt, si besoin.
 			if (choix[i].getDistanceDepart() > 0) {
@@ -83,8 +83,6 @@ public class Requete {
 			if (choix[i].getDistanceArrivee() > 0) {
 				itin.addTrajet(carte.trouverTrajet(choix[i].getDestination(), destination, vehiculeIntermediaire, directions.undefined));
 			}
-			
-			itin.setNom("Autobus circuit " + i);
 			
 			addItineraire(itin);
 			

@@ -45,8 +45,8 @@ public class ModeTransport {
 	 */
 	public int calculateTempsDeplacement(int distanceRoutePrincipale, int distanceRouteSecondaire, Intersection[] intersections) {
 		int t = 0;
-		t += Math.round(distanceRoutePrincipale / getVitesse(typesRoute.principale));
-		t += Math.round(distanceRouteSecondaire / getVitesse(typesRoute.secondaire));
+		t += Math.round(1.0 * distanceRoutePrincipale / getVitesse(typesRoute.principale));
+		t += Math.round(1.0 * distanceRouteSecondaire / getVitesse(typesRoute.secondaire));
 		for (Intersection intersection : intersections) {
 			t += getTempsIntersection(intersection.getType());
 		}
@@ -72,6 +72,7 @@ public class ModeTransport {
 			return arretIntersectionSecSec;
 		case undefined:
 		default:
+			System.out.println("Le type d'intersection spécifiée pour la méthode getTempsIntersection du ModeTransport " + nom + " est undefined. Il est probable que ça va fausser les données!");
 			return -1;
 		}
 	}
@@ -88,6 +89,7 @@ public class ModeTransport {
 		case secondaire:
 			return vitesseRouteSecondaire;
 		default:
+			// Ne devrait jamais se produire, puisque les deux seuls types de routes possibles sont ceux ci-dessus.
 			return -1;
 		}
 	}

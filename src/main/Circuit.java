@@ -1,7 +1,7 @@
 /*
  * Représente un circuit que va suivre un véhicule de transport en commun.
  * Les circuits sont une liste d'intersections (x,y) traversée, en ordre. Les circuits son toujours une 
- * boucle, et le premier et dernier circuit traversé doivent être identique.
+ * boucle, et donc le premier et dernier circuit traversé doivent être identique.
  * 
  */
 

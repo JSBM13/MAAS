@@ -40,13 +40,17 @@ public class Itineraire {
 	public ArrayList<Trajet> getTrajets() {
 		return trajets;
 	}
+	
+	public int getNbTrajets() {
+		return trajets.size();
+	}
 
 	public String getNom() {
 		return nom;
 	}
 	
 	public String toString() {
-		String s = nom + " (" + Handler.getTempsPourHumains(temps) + ", " + distance + "m) " +": { \n";
+		String s = nom + " (" + UtilitaireString.getTempsPourHumains(temps) + ", " + distance + "m) " +": { \n";
 		for (Trajet trajet : trajets) {
 			s += "    " + trajet.toString() + "\n";
 		}
@@ -67,7 +71,7 @@ public class Itineraire {
 	
 	/**
 	 * Constructeur. Ne prend comme paramètre que le nom.
-	 * @param nom Nom de l'intersection.
+	 * @param nom Nom de l'itinéraire.
 	 */
 	public Itineraire(String nom) {
 		super();

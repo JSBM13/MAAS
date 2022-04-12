@@ -18,6 +18,7 @@ public class Intersection {
 	
 	/**
 	 * Bouge l'intersection actuelle par une certaine distance dans la direction spécifiée.
+	 * Attention, cette méthode ne retournera pas forcément une intersection qui existe dans la Carte.
 	 * Utiliser la fonction movedFrom() pour obtenir une nouvelle intersection.
 	 * @param direction La direction dans laquelle on déplace l'intersection
 	 * @param distance Le nombre de pas
@@ -30,16 +31,6 @@ public class Intersection {
 		else if (direction == directions.nord) y += distance;
 		else if (direction == directions.sud) y -= distance;
 		return this;
-	}
-	
-	/**
-	 * Retourne une nouvelle intersection ayant bougé un certain nombre de pas dans la direction indiquée depuis l'intersection actuelle.
-	 * @param direction La direction dans laquelle on déplace l'intersection
-	 * @param distance Le nombre de pas
-	 * @return Une nouvelle intersection, ayant sa position modifiée.
-	 */
-	public Intersection movedFrom(directions direction, int distance) {
-		return this.clone().move(direction,  distance);
 	}
 	
 	/**
@@ -117,6 +108,15 @@ public class Intersection {
 		String s = input.replace("(", "").replace(")", "").replace(" ", "");
 		x = Integer.parseInt(s.substring(0,s.indexOf(',')));
 		y = Integer.parseInt(s.substring(s.indexOf(',') + 1));
+	}
+	
+	/**
+	 * Constructeur où l'on duplique les coordonnées et propriétés d'une intersection existante.
+	 */
+	public Intersection(Intersection intersection) {
+		this.x = intersection.getX();
+		this.y = intersection.getY();
+		this.type = intersection.getType();
 	}
 	
 	/**

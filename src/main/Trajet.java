@@ -181,7 +181,7 @@ public class Trajet {
 			s += inters.toString() + " ";
 		}
 		s += "| ";
-		s += Handler.getTempsPourHumains(temps) + ", ";
+		s += UtilitaireString.getTempsPourHumains(temps) + ", ";
 		s += distance + "m (" + distancePrincipale + "/" + distanceSecondaire + "), ";
 		s += nbIntersections + " inters. (" + intersectionsParType[0] + "/" + intersectionsParType[1] + "/" + intersectionsParType[2] + ") ";
 		

@@ -86,13 +86,12 @@ public class Carte {
 			choix[i] = t;
 		}
 		
-		
 		return choix;
 	}
 	
 	/**
 	 * Produit le trajet qu'emprunte le véhicule de transport en commun en commençant au points de départ et terminant au
-	 * point d'arrivée spécifé, en passant par chacun des points intermédiaire du circuit.
+	 * point d'arrivée spécifé, en passant par chacun des points intermédiaires du circuit.
 	 * @param indexCircuit L'index du circuit.
 	 * @param arretDepart L'index de l'arrêt du circuit où débute le trajet.
 	 * @param arretArrivee L'index de l'arrêt du circuit où termine le trajet.
@@ -145,7 +144,6 @@ public class Carte {
 			// Ce bloc permet de rassurer Java, qui voit que combine() de Trajet peut produire une exception on tente de combiner deux
 			// trajets qui ne commencent et finissent pas au même endroit. Ce n'est pas le cas ici.
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
 			
 		return t;
@@ -155,9 +153,9 @@ public class Carte {
 	/**
 	 * Détermine le trajet à prendre entre deux points.
 	 * @param depart L'intersection où l'on débute
-	 * @param arrivee L'intersection où l'on souhaite arriver
-	 * @param vehicule Le type de véhicule à utiliser
-	 * @param direction La direction initiale vers laquelle on navigue
+	 * @param arrivee L'intersection de destination
+	 * @param vehicule Le moyen de transport à utiliser
+	 * @param direction La direction initiale vers laquelle on fait face initiallement
 	 * @return Un objet Trajet avec la liste des Intersections qu'on doit traverser pour se rendre au point.
 	 * @throws Exception
 	 */
@@ -171,17 +169,19 @@ public class Carte {
 		int deltaX = arrivee.getX() - depart.getX();
 		int deltaY = arrivee.getY() - depart.getY();
 		
+		// On crée un trajet qui ne possède qu'un seul point, celui de départ.
 		Trajet t = new Trajet(this, vehicule, depart);
 		
-		// S'il n'y a aucun déplacement à faire, on va simplement renvoyer un trajet avec un seul point.
+		// S'il n'y a aucun déplacement à faire, on va simplement renvoyer un trajet avec ce seul point.
 		if (deltaX == 0 && deltaY == 0) {
 			return t;
 		}
 		
+		// On détermine notre position et notre direction actuelle.
 		directions directionActuelle = direction;
 		Intersection positionActuelle = depart.clone();
 		
-		// Si on a pas de direction initiale, on va déterminer la direction optimale à prendre.
+		// Si on a pas de direction initiale, on va déterminer la direction optimale à prendre initalement.
 		if (directionActuelle == directions.undefined) {
 			if (Math.abs(deltaX) >= Math.abs(deltaY)) {
 				if (deltaX > 0) {
@@ -201,15 +201,15 @@ public class Carte {
 		// Permet de vérifier qu'on est pas dans une boucle infinie, ce qu'on espère n'arrivera pas!
 		int loop = 0;
 		
-		// Tant qu'on est pas rendu au point final, on roule cette boucle. Donc, à chaque intersections... 
-		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY()) && loop++ < 100) {
+		// Tant qu'on est pas rendu au point final, on roule cette boucle. Donc, à chaque intersection... 
+		while ((positionActuelle.getX() != arrivee.getX() || positionActuelle.getY() != arrivee.getY()) && loop++ < (this.nbRoutesHorizontales + this.nbRoutesVerticales) * 2) {
 			
-			// On essaie, en ordre, aller tout droit, puis à droite, puis à gauche, puis finalement de reculer sur nos pas.
+			// On essaie, en ordre, d'aller tout droit, puis à droite, puis à gauche, puis finalement de reculer sur nos pas.
 			// Chaque fois, on vérifie si ce déplacement nous rapprocherais de notre but. Si oui, on utilise cette direction. Autrement, on essaie la prochaine.
 			for (int i = 0; i < 4; i++) {
 				int[] rotation = {0,1,3,2};
 				directions testDirection = rotateDirection(directionActuelle, rotation[i]);
-				Intersection testProchaineInter = positionActuelle.movedFrom(testDirection, 1);
+				Intersection testProchaineInter = new Intersection(positionActuelle).move(testDirection, 1);
 				if (intersectionExiste(testProchaineInter) && (testProchaineInter.delta(arrivee) < positionActuelle.delta(arrivee))) {
 					positionActuelle = testProchaineInter;
 					directionActuelle = testDirection;
@@ -219,9 +219,11 @@ public class Carte {
 			}
 		}
 		
-		if (loop >= 100) throw new Exception("Boucle infinie pour trouver trajet! Départ: " + depart + "; arrivée: " + arrivee);
+		// Si on a passé trop longtemps dans la boucle While, on est probablement dans une boucle infinie et on envoie un erreur.
+		// La limite de tours est un peu arbitraire, puisqu'en théorie le maximum d'intersections qu'on peut rencontrer ne devrait
+		// pas dépasser nbRoutesHorizontales + nbRoutesVerticales.
+		if (loop >= (this.nbRoutesHorizontales + this.nbRoutesVerticales) * 2) throw new Exception("Boucle infinie pour trouver trajet! Départ: " + depart + "; arrivée: " + arrivee);
 		
-		t.setDirection(directionActuelle);
 		return t;
 	}
 	
@@ -267,7 +269,7 @@ public class Carte {
 	}
 
 	/**
-	 * Fournie une direction qui est le résultat d'une rotation vers la droite/sens horaire d'un certain nombre de pas.
+	 * Fournie une direction qui est le résultat d'avoir tourné vers la droite (sens horaire) un certain nombre de fois.
 	 * @param initial La direction originale
 	 * @param rotation Le nombre de rotation à effectuer
 	 * @return La nouvelle direction
@@ -351,6 +353,14 @@ public class Carte {
 	
 	public Circuit[] getCircuits() {
 		return circuits;
+	}
+	
+	public Circuit getCircuit(int index) {
+		return circuits[index];
+	}
+	
+	public int getNbCircuits() {
+		return circuits.length;
 	}
 
 	public void setCircuits(Circuit[] circuits) {
