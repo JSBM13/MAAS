@@ -111,13 +111,12 @@ public class Trajet {
 				this.direction = directions.undefined;
 			}
 			
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.direction = directions.undefined;
 		}
 		
-	}	 
+	}
 	
 	/**
 	 * Ajoute un array d'intersections à la liste d'intersections de ce trajet.
@@ -129,7 +128,6 @@ public class Trajet {
 				addIntersection(intersection);
 			}
 		}
-		
 	}
 	
 	/**
@@ -170,7 +168,6 @@ public class Trajet {
 				} else {
 					throw new Exception("Le Trajet à combiner (" + t + ") ne commence pas à la même intersection que ce Trajet (" + this + ") fini.");
 				}
-				
 			}
 		}
 	}

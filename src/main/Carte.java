@@ -276,7 +276,6 @@ public class Carte {
 	 */
 	public directions rotateDirection(directions initial, int rotation) {
 		return (directionFromInt(Math.abs(initial.ordinal() + rotation) % 4));
-		
 	}
 	
 	/**

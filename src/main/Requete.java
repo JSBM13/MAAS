@@ -35,9 +35,7 @@ public class Requete {
 					// On créé un itinéraire avec ce véhicule.
 					calculateItineraireDirect(vehicule.getNom(), vehicule);
 				}
-				
 			}
-			
 		}
 		
 		// On ajoute le meilleur circuit de transport en commun, avec la marche comme méthode intermédiaire de se rendre aux arrêts.
@@ -85,7 +83,6 @@ public class Requete {
 			}
 			
 			addItineraire(itin);
-			
 		}
 	}
 	

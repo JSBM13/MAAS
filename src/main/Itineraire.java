@@ -16,8 +16,8 @@ public class Itineraire {
 	public Itineraire addTrajet(Trajet trajet) {
 		if (trajet.getNbIntersections() > 1) {
 			trajets.add(trajet);
-			temps += trajet.calculateTemps();
-			distance += trajet.calculateDistance();
+			temps += trajet.getTemps();
+			distance += trajet.getDistance();
 			if (!vehicules.contains(trajet.getVehicule().getType())) {
 				vehicules.add(trajet.getVehicule().getType());
 			}
