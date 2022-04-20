@@ -27,7 +27,8 @@ public class Trajet {
 	private int distanceDepart = -1;				// Si c'est un trajet de transport à commun, distance, en segments, entre le début du trajet
 													// et le point de départ de la requête.
 	private int distanceArrivee = -1;				// Distance en segments entre la fin du trajet et le point de destination de la requête.
-	
+	private int indexCircuit = -1;					// Si c'est un trajet de transport en commun, indique l'index du circuit emprunté.
+
 	/**
 	 * Détermine le temps nécessaire pour parcourir le trajet. Retourne ce temps en seconde, et l'enregistre dans la variable temps.
 	 * @return Le temps en secondes.
@@ -248,6 +249,14 @@ public class Trajet {
 
 	public void setDistanceArrivee(int distanceArrivee) {
 		this.distanceArrivee = distanceArrivee;
+	}
+	
+	public int getIndexCircuit() {
+		return indexCircuit;
+	}
+
+	public void setIndexCircuit(int indexCircuit) {
+		this.indexCircuit = indexCircuit;
 	}
 	
 	/**

@@ -101,8 +101,9 @@ public class Carte {
 		
 		Circuit circuit = circuits[indexCircuit];
 		
-		// Créé un circuit vide.
+		// Créer un circuit vide.
 		Trajet t = new Trajet(this, circuit.vehicule);
+		t.setIndexCircuit(indexCircuit);
 		
 		// Si le point de départ est le même que celui d'arrivé, on créé un trajet avec un seul point, pas besoin d'en faire plus.
 		if (arretDepart == arretArrivee) {
