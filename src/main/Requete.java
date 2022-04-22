@@ -15,7 +15,6 @@ public class Requete {
 	private ArrayList<Itineraire> itineraires;
 	private Intersection depart, destination;
 	private boolean heureDePointe;
-	private int recommandation;
 	
 	/**
 	 * Génère les itinéraires standarts du programme.
@@ -47,12 +46,7 @@ public class Requete {
 		
 		return itineraires;
 	}
-	
-	public int calculateRecommendation() {
-		
-		return recommandation;
-	}
-	
+
 	/**
 	 * Ajoute à la requête un itinéraire direct entre le point de départ et celui d'arrivée en utilisant le mode de transport indiqué.
 	 * @param nom Le nom de l'itinéraire
@@ -155,7 +149,6 @@ public class Requete {
 		this.itineraires = new ArrayList<>();
 		this.carte = carte;
 		this.heureDePointe = heureDePointe;
-		this.recommandation = -1;
 	}
 	
 	public ArrayList<Itineraire> getItineraires() {
@@ -171,16 +164,13 @@ public class Requete {
 	public Intersection getDestination() {
 		return destination;
 	}
-	public int getRecommandation() {
-		return recommandation;
-	}
 	
 	@Override
 	public String toString() {
 		String x = "Requête de " + depart.toString() + " à " + destination.toString() + ", "+ (heureDePointe ? "heure de pointe " : "heure régulière ") + ":\n";
 		
 		for (int i = 0; i < itineraires.size(); i++) {
-			x += (recommandation == i ? "*" : " ") + i + ") " + itineraires.get(i).toString() + "\n";
+			x += " "+ i + ") " + itineraires.get(i).toString() + "\n";
 		}
 		
 		
