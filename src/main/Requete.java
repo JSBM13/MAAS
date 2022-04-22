@@ -8,6 +8,8 @@ package main;
 
 import java.util.ArrayList;
 
+import main.Carte.IntersectionDoesntExistException;
+
 public class Requete {
 	private Carte carte;
 	private ArrayList<Itineraire> itineraires;
@@ -19,9 +21,9 @@ public class Requete {
 	 * Génère les itinéraires standarts du programme.
 	 * @param vehicules Un tableau des modes de transport à utiliser.
 	 * @return
-	 * @throws Exception
+	 * @throws Exception De par les méthodes de Carte qui génère ces exceptions.
 	 */
-	public ArrayList<Itineraire> calculateItineraires(ModeTransport[] vehicules) throws Exception {
+	public ArrayList<Itineraire> calculateItineraires(ModeTransport[] vehicules) throws IntersectionDoesntExistException, Exception {
 		
 		for (int i = 0; i < vehicules.length; i++) {
 			ModeTransport vehicule = vehicules[i];
@@ -58,7 +60,7 @@ public class Requete {
 	 * @param vehicule Le mode de transport à utiliser
 	 * @throws Exception
 	 */
-	public void calculateItineraireDirect(String nom, ModeTransport vehicule) throws Exception {
+	public void calculateItineraireDirect(String nom, ModeTransport vehicule) throws IntersectionDoesntExistException, Exception {
 		Itineraire itineraire = new Itineraire(nom);
 		itineraire.addTrajet(carte.trouverTrajet(depart, destination, vehicule, directions.undefined));
 		itineraires.add(itineraire);
@@ -69,7 +71,7 @@ public class Requete {
 	 * @param vehiculeIntermediaire
 	 * @throws Exception
 	 */
-	public void calculateMeilleurTransportEnCommun(ModeTransport vehiculeIntermediaire) throws Exception {
+	public void calculateMeilleurTransportEnCommun(ModeTransport vehiculeIntermediaire) {
 		
 		Trajet[] choix = carte.trouverCircuits(depart, destination);
 		
@@ -105,7 +107,7 @@ public class Requete {
 		addItineraire(itin);
 	}
 	
-	public void calculateAllTransportEnCommun(ModeTransport vehiculeIntermediaire) throws Exception {
+	public void calculateAllTransportEnCommun(ModeTransport vehiculeIntermediaire) {
 		Trajet[] choix = carte.trouverCircuits(depart, destination);
 		
 		for (int i = 0; i < choix.length; i++) {
@@ -146,7 +148,7 @@ public class Requete {
 		itineraires.add(itineraire);
 	}
 	
-	public Requete(Carte carte, Intersection depart, Intersection destination, boolean heureDePointe) throws Exception {
+	public Requete(Carte carte, Intersection depart, Intersection destination, boolean heureDePointe) {
 		super();
 		this.depart = depart;
 		this.destination = destination;

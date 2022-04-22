@@ -66,7 +66,7 @@ public final class Circuit {
 	 * entre les parenthèses.
 	 * @param input La chaine de caractère représentant les circuits.
 	 * @param vehicule Le type de mode de transport à utiliser pour ces circuits.
-	 * @return
+	 * @return Une liste de Circuits
 	 */
 	public static Circuit[] parseCircuits(String input, ModeTransport vehicule) {
 		String[] circuits = input.split(";");

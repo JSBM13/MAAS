@@ -158,13 +158,14 @@ public class Carte {
 	 * @param vehicule Le moyen de transport à utiliser
 	 * @param direction La direction initiale vers laquelle on fait face initiallement
 	 * @return Un objet Trajet avec la liste des Intersections qu'on doit traverser pour se rendre au point.
-	 * @throws Exception
+	 * @throws Exception Si l'algorithme se trouve dans une boucle infinie.
+	 * @throws IntersectionDoesntExistException Si une des Intersections fournies n'existe pas dans la Carte.
 	 */
-	public Trajet trouverTrajet(Intersection depart, Intersection arrivee, ModeTransport vehicule, directions direction ) throws Exception {
+	public Trajet trouverTrajet(Intersection depart, Intersection arrivee, ModeTransport vehicule, directions direction ) throws IntersectionDoesntExistException, Exception {
 		
 		// On vérifie si les intersections demandées existent.
-		if (!intersectionExiste(depart)) throw new Exception("L'intersection de départ n'existe pas. " + depart);
-		if (!intersectionExiste(arrivee)) throw new Exception("L'intersection d'arrivée n'existe pas. " + arrivee);
+		if (!intersectionExiste(depart)) throw new IntersectionDoesntExistException(depart, "L'intersection de départ n'existe pas. " + depart);
+		if (!intersectionExiste(arrivee)) throw new IntersectionDoesntExistException(arrivee, "L'intersection d'arrivée n'existe pas. " + arrivee);
 		
 		// On calcule la distance entre les deux points pour les deux axes.
 		int deltaX = arrivee.getX() - depart.getX();
@@ -414,7 +415,7 @@ public class Carte {
 	 * @throws Exception
 	 * @throws UnequalNumberOfRoadsException Si le nombre de routes fournis est inconstant entre les différents paramètres. Contient un attribut Orientation pour savoir quelle orientation est incorrecte. 
 	 */
-	public Carte(String inputDistancesVerticales, String inputDistancesHorizontales, String inputTypesVerticaux, String inputTypesHorizontaux) throws Exception, UnequalNumberOfRoadsException{
+	public Carte(String inputDistancesVerticales, String inputDistancesHorizontales, String inputTypesVerticaux, String inputTypesHorizontaux) throws ParsingErrorException, UnequalNumberOfRoadsException{
 		String[] distancesVerticales = inputDistancesVerticales.split(",");
 		String[] distancesHorizontales = inputDistancesHorizontales.split(",");
 		
@@ -459,12 +460,12 @@ public class Carte {
 	 * @return Le tableau de typesRoute correspondant.
 	 * @throws Exception Si une lettre invalide est insérée dans l'entrée.
 	 */
-	public typesRoute[] parseTypesRoute(String input) throws Exception {
+	public typesRoute[] parseTypesRoute(String input) throws ParsingErrorException {
 		typesRoute[] values = new typesRoute[input.length()];
 		for (int i = 0; i < input.length(); i++) {
 			if (input.charAt(i) == 'P') values[i] = typesRoute.principale;
 			else if (input.charAt(i) == 'S') values[i] = typesRoute.secondaire;
-			else throw new Exception("Entrée invalide, la lettre '" + input.charAt(i) + "' n'est pas un type de routes.");
+			else throw new ParsingErrorException("Entrée invalide, la lettre '" + input.charAt(i) + "' n'est pas un type de routes.");
 		}
 		return values;
 	}
@@ -480,6 +481,31 @@ public class Carte {
 		UnequalNumberOfRoadsException(orientations o, String msg) {
 			super(msg);
 			this.orientation = o;
+		}
+	}
+	
+	/**
+	 * Exception générée par Carte quand une intersection indiquée n'existe pas.
+	 * Possède l'attribut intersection qui contient l'Intersection fautive.
+	 * @author JS
+	 */
+	@SuppressWarnings("serial")
+	class IntersectionDoesntExistException extends Exception {
+		Intersection intersection;
+		IntersectionDoesntExistException(Intersection intersection, String msg) {
+			super(msg);
+			this.intersection = intersection;
+		}
+	}
+	
+	/**
+	 * Exception quand le décodage des paramètres depuis un String rencontre une erreur.
+	 * @author JS
+	 */
+	@SuppressWarnings("serial")
+	public class ParsingErrorException extends Exception {
+		ParsingErrorException(String msg) {
+			super(msg);
 		}
 	}
 }

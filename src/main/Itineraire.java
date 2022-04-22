@@ -13,6 +13,11 @@ public class Itineraire {
 	private int temps;							// Temps, en secondes, nécessaire pour faire le déplacement.
 	private int distance;						// Distance, en mètres, parcourue dans cet itinéraire.
 	
+	/**
+	 * Ajoute un trajet à l'Itineraire.
+	 * @param trajet Le Trajet à ajouter.
+	 * @return L'Itineraire lui-même (permet d'enchainer les appels).
+	 */
 	public Itineraire addTrajet(Trajet trajet) {
 		if (trajet.getNbIntersections() > 1) {
 			trajets.add(trajet);
