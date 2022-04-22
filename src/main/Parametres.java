@@ -51,6 +51,7 @@ public final class Parametres {
 				"Circuits Métro: " + circuitsMetro;
 	}
 	
+	/* Les paramètres réguliers de l'application. */
 	final static Parametres defaultParams6x5 = new Parametres("400,300,400,300,400",
 			"400,300,400,300",
             "PSPSPS",
@@ -61,6 +62,7 @@ public final class Parametres {
             "(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4);(0,4) (4,4) (4,3) (5,3) (5,0) (0,0) (0,4)"
             );
 	
+	/* Paramètres de tests pour une carte plus grande (20x20). */
 	final static Parametres defaultParams20x20= new Parametres("100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
 			"100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100",
 			"PSSSPSSSSPSSSSPSSPSP",
