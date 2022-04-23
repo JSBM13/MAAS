@@ -147,8 +147,8 @@ public class Trajet {
 		case PrincSec: 		intersectionsParType[2]++; break;
 		default:			// (rien)
 		}
-		calculateTemps();
 		calculateDistance();
+		calculateTemps();
 		findDirection();
 	}
 	

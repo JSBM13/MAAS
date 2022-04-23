@@ -120,7 +120,7 @@ public class MainPage extends JFrame {
 				new ModeTransport("Autobus", typeTransport.autobus, true, true, true, inputVehicules[2]),
 				new ModeTransport("Metro", typeTransport.metro, true, true, true, inputVehicules[3]),
 				new ModeTransport("Voiture", typeTransport.voiture, true, false, false, inputVehicules[4]),
-				new ModeTransport("Voiture", typeTransport.voiture, false, true, false, inputVehicules[5]),
+				new ModeTransport("Voiture", typeTransport.voiture, false, true, false, inputVehicules[5])
 			};
 		
 		this.vehicules = vehicules;
